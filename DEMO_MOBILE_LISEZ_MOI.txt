@@ -1,0 +1,33 @@
+ALLROADS V51 — DEMO MOBILE DEVELOPPEUR
+
+BUT
+Tester AllRoads sur un vrai téléphone : interface, fluidité, lisibilité et guidage en simulation.
+
+MODE DEVELOPPEUR
+Le lancement par DEMO_MOBILE.bat active localement le mode PRO pour cette démonstration.
+Les 8 profils sont donc accessibles : Piéton, Vélo, Moto, Voiture, Utilitaire, Camping-car, Bus et Poids lourd.
+Cela ne supprime pas le système TEST / abonnement du projet : il reste intact pour les autres lancements.
+
+DEMARRAGE
+1. Le PC et le téléphone doivent être connectés au même Wi-Fi.
+2. Double-cliquez sur DEMO_MOBILE.bat.
+3. Si Windows demande l'autorisation réseau pour Python, autorisez le réseau privé.
+4. Une adresse du type http://192.168.x.x:8000/app s'affiche.
+5. Tapez cette adresse dans Chrome, Edge ou Safari sur le téléphone.
+
+TEST CONSEILLE
+- Tester librement les 8 profils (mode développeur local).
+- Préparer/calculer un trajet.
+- Tester l'affichage vertical et horizontal.
+- Passer en mode conduite / Essentiel.
+- Lancer la simulation pour observer le guidage sans GPS réel.
+- Tester les onglets, alertes et l'onglet Tests.
+
+GPS REEL
+Une page HTTP locale peut être refusée par le navigateur pour la géolocalisation.
+Ce n'est pas un défaut d'AllRoads : le GPS navigateur demande généralement un contexte sécurisé HTTPS.
+La simulation reste disponible pour cette V36.
+
+IMPORTANT
+Cette V36 est une version de démonstration locale. Elle ne publie pas AllRoads sur Internet.
+Pour arrêter : fermer la fenêtre DEMO_MOBILE ou Ctrl+C.

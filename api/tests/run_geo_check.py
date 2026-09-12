@@ -1,7 +1,11 @@
+from pathlib import Path
 import os
+import sys
 import unittest
 
-os.chdir(r"c:/Users/jpmic/OneDrive/Documents/projet itinéraire/api")
+API_DIR = Path(__file__).resolve().parents[1]
+os.chdir(API_DIR)
+sys.path.insert(0, str(API_DIR))
 
 import tests.test_geo as module
 

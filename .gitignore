@@ -1,0 +1,11 @@
+.venv/
+.venv-python312-backup/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+*.env
+!*.env.example
+clé.env
+*.sqlite3-journal
+.DS_Store

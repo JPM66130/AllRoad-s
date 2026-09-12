@@ -1,0 +1,4 @@
+ANCIEN FRONTEND NON SERVI.
+
+L'interface AllRoads utilisée par /app se trouve dans : api/frontend/index.html
+Ce dossier est conservé temporairement comme archive afin de ne perdre aucun travail.

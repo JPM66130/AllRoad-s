@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 
 from db import Base
 
@@ -11,3 +11,4 @@ class TrajetDetail(Base):
     nom_tournee = Column(String, nullable=False, default="Tournée sans nom")
     profil = Column(String, nullable=False)
     geometry_json = Column(Text, nullable=False)
+    sauvegarde_volontaire = Column(Boolean, nullable=False, default=False)

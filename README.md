@@ -40,3 +40,13 @@ Routes principales :
 - Vérifier tout fichier modifié avant de lancer l’API.
 - Supprimer tout bloc inattendu tel que `edge_all_open_tabs` avant exécution.
 - Utiliser Git pour repérer les modifications non souhaitées.
+
+
+## V52.9.53 — test plein écran
+Le WP35 peut maintenant demander le plein écran depuis l’interface avec `⛶ PLEIN ÉCRAN`, sans verrouiller l’orientation. Ce banc sert à valider l’espace réel avant la finition de l’accueil.
+
+## V52.9.53
+Saisie destination sécurisée au-dessus du clavier Android, stabilisation du viewport PWA WP35 et heartbeat obsolète rendu idempotent. La marge basse standard validée en V52.9.50 est conservée.
+
+## Version V52.9.60
+Consolidation WP35 : coque verticale figée entre rotations, retour du plein écran PWA prioritaire, header remonté au bord utile et ordre cartographique global Header → Carte/Relief/Satellite → guidage → carte. Validation terrain WP35 nécessaire pour confirmer la disparition des sauts liés aux barres Android.

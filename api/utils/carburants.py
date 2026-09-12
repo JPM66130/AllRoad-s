@@ -52,7 +52,7 @@ def get_fuel_prices():
     if cached:
         return cached
     try:
-        request = urllib.request.Request(SOURCE_URL, headers={"User-Agent": "Itineraire-C25/1.0"})
+        request = urllib.request.Request(SOURCE_URL, headers={"User-Agent": "AllRoads/1.0"})
         with urllib.request.urlopen(request, timeout=20) as response:
             archive = response.read()
         with zipfile.ZipFile(io.BytesIO(archive)) as archive_file:
@@ -77,7 +77,7 @@ def get_eu_fuel_prices():
     if cached:
         return cached
     try:
-        request = urllib.request.Request(EU_SOURCE_URL, headers={"User-Agent": "Itineraire-C25/1.0"})
+        request = urllib.request.Request(EU_SOURCE_URL, headers={"User-Agent": "AllRoads/1.0"})
         with urllib.request.urlopen(request, timeout=20) as response:
             workbook = load_workbook(io.BytesIO(response.read()), read_only=True, data_only=True)
         sheet = workbook.active

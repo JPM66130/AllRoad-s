@@ -1,0 +1,23 @@
+ALLROADS — REPÈRES DE TRAVAIL
+
+Interface réellement servie par FastAPI :
+  api/frontend/
+  Fichier principal : api/frontend/index.html
+
+Copie miroir de référence :
+  frontend/
+  Elle n'est pas servie à l'exécution. Tant que les tests historiques exigent le miroir,
+  les fichiers coeur modifiés dans api/frontend/ sont répercutés à l'identique ici.
+  Ne jamais créer deux variantes fonctionnelles de l'interface.
+
+Démarrage démonstration :
+  DEMO_MOBILE.bat
+  Lanceur WP35 courant : AA_LANCER_ALLROADS_V52_9_95.bat
+
+Principe mobile :
+  Accueil profils -> préparation -> conduite.
+  Les panneaux de conduite ne doivent pas apparaître avant l'entrée en mode conduite.
+
+Règle d'autorité :
+  FastAPI sert uniquement api/frontend/. Le dossier frontend/ reste un miroir de compatibilité
+  jusqu'à une étape dédiée de nettoyage, sans suppression sans autorisation.

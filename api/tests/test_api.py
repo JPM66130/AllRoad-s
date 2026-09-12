@@ -41,7 +41,7 @@ class ItineraireApiTest(unittest.TestCase):
         response = self.client.get("/itineraire/profils")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(response.json()), {"voiture", "bus"})
+        self.assertEqual(set(response.json()), {"pieton", "velo", "moto", "voiture", "utilitaire", "camping_car", "poids_lourd", "bus"})
         self.assertEqual(response.json()["bus"]["hauteur_m"], 4.0)
 
     def test_calcul_persists_and_returns_route_contract(self):
@@ -172,7 +172,7 @@ class ItineraireApiTest(unittest.TestCase):
         main.RATE_LIMIT_PER_MINUTE = 1
         main.request_times.clear()
         try:
-            external_client = TestClient(main.app)
+            external_client = TestClient(main.app, client=("8.8.8.8", 50001))
             first_response = external_client.get("/itineraire/profils")
             second_response = external_client.get("/itineraire/profils")
 

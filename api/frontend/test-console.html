@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AllRoads — Console test PC ↔ téléphone</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#163047;background:#eef3f6}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:0 auto;padding:24px}.head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}.brand{font-size:30px;font-weight:950;color:#0c3153}.brand span{font-weight:350;color:#41769f}.tag{font-size:13px;color:#678}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{background:white;border-radius:20px;padding:18px;box-shadow:0 8px 26px rgba(25,55,75,.08)}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:0 0 12px}.status{display:flex;align-items:center;gap:9px;padding:12px;border-radius:14px;background:#fff3dc;color:#765315;font-weight:850}.status.ok{background:#dff5ed;color:#12654f}.dot{width:11px;height:11px;border-radius:50%;background:currentColor}.facts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.fact{padding:11px;border-radius:13px;background:#f4f7f9}.fact small{display:block;color:#73818c;font-size:10px;text-transform:uppercase;font-weight:850}.fact strong{display:block;margin-top:3px;font-size:15px}.buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.buttons button,.profile-buttons button{min-height:48px;border:0;border-radius:14px;font-weight:900;cursor:pointer;background:#e7eef3;color:#173750}.buttons .primary{background:#1775df;color:white}.buttons .warn{background:#fff0dd;color:#7c4d0c}.profile-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:9px}.profile-buttons button{min-height:42px;font-size:12px}.note{margin-top:12px;padding:12px;border-radius:14px;background:#edf6ff;color:#355d7d;font-size:12px;line-height:1.45}.log{margin-top:12px;color:#60717e;font-size:12px;min-height:20px}.phone-help{font-size:14px;line-height:1.55;color:#4d6170}.phone-help strong{color:#18384f}@media(max-width:760px){.grid{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.profile-buttons{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body><div class="wrap">
+<div class="head"><div><div class="brand">ALL<span>ROAD'S</span></div><div class="tag">V52.6.13 · Console locale de test</div></div><a href="/app" target="_blank">Ouvrir AllRoads sur ce PC</a></div>
+<div class="grid">
+<section class="card"><h1>PC ↔ téléphone</h1><p style="margin-top:5px;color:#667987">Le téléphone reste le véritable écran conducteur. Cette console sert seulement à accélérer nos essais.</p>
+<div id="connection" class="status"><span class="dot"></span><span>En attente du téléphone…</span></div>
+<div class="facts">
+<div class="fact"><small>Écran téléphone</small><strong id="screen">—</strong></div><div class="fact"><small>Profil</small><strong id="profile">—</strong></div>
+<div class="fact"><small>Véhicule</small><strong id="vehicle">—</strong></div><div class="fact"><small>Orientation</small><strong id="orientation">—</strong></div>
+<div class="fact" style="grid-column:1/-1"><small>Destination</small><strong id="destination">—</strong></div></div>
+<div class="log" id="log">Aucune commande envoyée.</div></section>
+<section class="card"><h2>Commandes de test</h2><div class="buttons">
+<button onclick="send('back')">← Retour</button><button onclick="send('home')">⌂ Accueil</button>
+<button onclick="send('vehicles')">Mes véhicules</button><button onclick="send('prepare')">Préparer trajet</button>
+<button class="primary" onclick="send('demo')">Charger démo</button><button class="primary" onclick="send('start')">Démarrer</button>
+<button class="warn" style="grid-column:1/-1" onclick="send('incident')">⚠ Simuler un incident</button></div>
+<h2 style="margin-top:18px">Changer de profil</h2><div class="profile-buttons">
+<button onclick="profile('voiture')">Voiture</button><button onclick="profile('bus')">Bus</button><button onclick="profile('utilitaire')">Utilitaire</button><button onclick="profile('camping_car')">Camping-car</button>
+</div><div class="note"><strong>Mode test uniquement.</strong> Rien ici ne prendra le contrôle d'autres applications du téléphone. Le pont pilote seulement AllRoads pendant qu'il est ouvert.</div></section>
+</div>
+<section class="card" style="margin-top:16px"><h2>Mise en route</h2><div class="phone-help">1. Laissez cette console ouverte sur le PC.<br>2. Sur le téléphone, ouvrez AllRoads comme d'habitude sur le même Wi-Fi.<br>3. Quand le voyant passe au vert, les deux sont reliés. <strong>Aucune installation supplémentaire sur le téléphone.</strong></div></section>
+</div>
+<script>
+const $=id=>document.getElementById(id);let lastConnected=false;
+function prettyScreen(v){return ({home:'Accueil',vehicles:'Mes véhicules',prepare:'Préparer le trajet',ready:'Itinéraire prêt',driving:'Conduite',incident:'Incident',turnaround:'Retournement'})[v]||v||'—'}
+async function refresh(){
+  const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),1500);
+  try{
+    const r=await fetch('/test-bridge/status',{cache:'no-store',signal:ctl.signal});
+    const d=await r.json();const c=$('connection');
+    c.classList.toggle('ok',!!d.connected);
+    c.querySelector('span:last-child').textContent=d.connected?'Téléphone connecté':'En attente du téléphone…';
+    const p=d.phone||{};
+    $('screen').textContent=prettyScreen(p.screen);
+    $('profile').textContent=(p.profile||'—').replaceAll('_',' ');
+    $('vehicle').textContent=p.vehicle||'—';
+    $('orientation').textContent=p.orientation||'—';
+    $('destination').textContent=p.destination||'—';
+    lastConnected=!!d.connected;
+  }catch(e){
+    $('connection').classList.remove('ok');
+    $('connection').querySelector('span:last-child').textContent='Serveur de test indisponible';
+  }finally{clearTimeout(timer)}
+}
+async function send(command,payload={}){try{const r=await fetch('/test-bridge/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,payload})});if(!r.ok)throw 0;$('log').textContent='Commande envoyée : '+command+(lastConnected?'':' · le téléphone la recevra dès qu’il est connecté.')}catch(e){$('log').textContent='Commande non envoyée. Vérifiez que la démo AllRoads est lancée.'}}
+function profile(name){send('profile',{profile:name})}setInterval(refresh,2000);refresh();
+</script></body></html>

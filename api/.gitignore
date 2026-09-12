@@ -5,6 +5,7 @@ clé.env
 
 # Environnement Python
 .venv/
+.venv-python312-backup/
 venv/
 
 # Cache et fichiers générés

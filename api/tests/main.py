@@ -52,7 +52,7 @@ async def access_control(request: Request, call_next):
 
 @app.get("/status")
 def status():
-    return {"message": "Nomade bêta opérationnelle"}
+    return {"message": "AllRoads opérationnelle"}
 
 @app.get("/stations")
 def stations():

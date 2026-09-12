@@ -199,3 +199,23 @@ class GeoCalculTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_secret_loader_accepts_legacy_encoded_filename(tmp_path, monkeypatch):
+    from utils import geo
+    legacy = tmp_path / "cl#U00e9.env"
+    legacy.write_text("ORS_API_KEY=test-ors-key\nGRAPHOPPER_API_KEY=test-gh-key\n", encoding="utf-8")
+    monkeypatch.delenv("ORS_API_KEY", raising=False)
+    monkeypatch.delenv("GRAPHOPPER_API_KEY", raising=False)
+    monkeypatch.setattr(geo, "_secret_env_paths", lambda: [str(tmp_path / "clé.env"), str(legacy)])
+    assert geo._ors_api_key() == "test-ors-key"
+    assert geo._graphhopper_api_key() == "test-gh-key"
+
+
+def test_secret_loader_prefers_environment(monkeypatch):
+    from utils import geo
+    monkeypatch.setenv("ORS_API_KEY", "env-ors-key")
+    monkeypatch.setenv("GRAPHOPPER_API_KEY", "env-gh-key")
+    monkeypatch.setattr(geo, "_secret_env_paths", lambda: [])
+    assert geo._ors_api_key() == "env-ors-key"
+    assert geo._graphhopper_api_key() == "env-gh-key"

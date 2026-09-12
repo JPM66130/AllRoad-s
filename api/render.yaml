@@ -17,6 +17,10 @@ services:
         value: sqlite:////data/database.db
       - key: API_ACCESS_TOKEN
         generateValue: true
+      - key: TESTER_ACCESS_TOKEN
+        sync: false
+      - key: OWNER_ACCESS_TOKEN
+        sync: false
       - key: ORS_API_KEY
         sync: false
       - key: GRAPHOPPER_API_KEY

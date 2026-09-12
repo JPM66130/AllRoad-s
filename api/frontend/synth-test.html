@@ -1,0 +1,25 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>AllRoad's — Banc synthèse</title>
+<style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1722;font-family:Arial,sans-serif}#c{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));height:62px;border-radius:18px;background:rgba(245,250,252,.94);display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#123047;z-index:2;box-shadow:0 4px 18px #0002}.brand{font-weight:800;font-size:20px}.brand span{font-weight:400;color:#3975a1}.tag{font-size:12px;background:#e4f5ef;padding:7px 10px;border-radius:20px}.info{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));background:rgba(9,37,56,.92);color:white;border-radius:18px;padding:11px 14px;z-index:2;display:flex;justify-content:space-between;align-items:center}.big{font-size:17px;font-weight:800}.small{font-size:11px;opacity:.8}.fps{font-variant-numeric:tabular-nums;text-align:right}</style></head>
+<body><canvas id="c"></canvas><div class="hud"><div class="brand">ALL<span>ROAD'S</span><div style="font-size:8px;text-align:center;font-weight:500">BANC SYNTHÈSE V52.9.5</div></div><div class="tag">● LOCAL · WP35</div></div><div class="info"><div><div class="big">Route synthétique</div><div class="small">chaussée + ruban + mouvement · aucun réseau graphique</div></div><div class="fps"><div class="big" id="fps">-- i/s</div><div class="small">cible 24</div></div></div>
+<script>
+(()=>{
+const c=document.getElementById('c'),x=c.getContext('2d',{alpha:false,desynchronized:true});
+const fpsEl=document.getElementById('fps');let W=0,H=0,D=1,last=0,acc=0,n=0,quality=1,lowSince=0,highSince=0;
+const TARGET=24,STEP=1000/TARGET,ZMAX=900,DZ=18;
+let samples=[],bg=null,bgx=null;
+const lerp=(a,b,t)=>a+(b-a)*t;
+function resize(){D=1;W=innerWidth;H=innerHeight;c.width=Math.max(1,Math.round(W*D));c.height=Math.max(1,Math.round(H*D));c.style.width=W+'px';c.style.height=H+'px';x.setTransform(D,0,0,D,0,0);buildBackground()}
+function buildBackground(){bg=document.createElement('canvas');bg.width=Math.max(1,W);bg.height=Math.max(1,H);bgx=bg.getContext('2d',{alpha:false});bgx.fillStyle='#9ed1ed';bgx.fillRect(0,0,W,H*.42);bgx.fillStyle='#789b72';bgx.beginPath();bgx.moveTo(0,H*.43);for(let i=0;i<=8;i++){let xx=i*W/8;bgx.lineTo(xx,H*(.34+.055*Math.sin(i*1.7)))}bgx.lineTo(W,H*.58);bgx.lineTo(0,H*.58);bgx.closePath();bgx.fill();bgx.fillStyle='#8bb36e';bgx.fillRect(0,H*.42,W,H*.58)}
+addEventListener('resize',resize,{passive:true});resize();
+function curve(z,t){return Math.sin(z*.010+t*.34)*.24+Math.sin(z*.021+t*.19)*.08}
+function buildSamples(t){samples.length=0;for(let z=0;z<=ZMAX;z+=DZ){const q=z/ZMAX,e=Math.pow(q,.52),eh=Math.pow(q,.72);samples.push({z,q,y:lerp(H*.83,H*.31,e),half:lerp(W*.43,W*.045,eh),cx:W*.5+curve(z,t)*W*(1-q)*.58})}}
+function strip(a,b,fill){x.beginPath();for(let i=0;i<samples.length;i++){let p=samples[i],xx=p.cx+p.half*a;i?x.lineTo(xx,p.y):x.moveTo(xx,p.y)}for(let i=samples.length-1;i>=0;i--){let p=samples[i];x.lineTo(p.cx+p.half*b,p.y)}x.closePath();x.fillStyle=fill;x.fill()}
+function roadLine(off,width,fill,dashed=false,t=0){x.beginPath();let started=false;for(let i=0;i<samples.length;i++){let p=samples[i];if(dashed&&((Math.floor((p.z+t*70)/36)&1)===0)){started=false;continue}let xx=p.cx+p.half*off;if(!started){x.moveTo(xx,p.y);started=true}else x.lineTo(xx,p.y)}x.strokeStyle=fill;x.lineWidth=width;x.lineCap='round';x.stroke()}
+function nearest(z){let i=Math.max(0,Math.min(samples.length-1,Math.round(z/DZ)));return samples[i]}
+function render(ms){const t=ms/1000;x.drawImage(bg,0,0);buildSamples(t);strip(-1.28,1.28,'#b6ad92');strip(-1,1,'#3e4447');roadLine(-.96,3,'#f4f4ee');roadLine(.96,3,'#f4f4ee');roadLine(0,2,'#f2eee0',true,t);strip(.12,.88,'#096be5');roadLine(.50,2,'#63c7ff');
+for(let k=0;k<20;k++){let z=(k*54-(t*54)%54+ZMAX)%ZMAX,p=nearest(z);for(let s of[-1,1]){let xx=p.cx+s*p.half*1.12,hh=lerp(18,2,p.q);x.fillStyle='#f7f7f2';x.fillRect(xx-1.5,p.y-hh,3,hh)}}
+let p=nearest(36),bx=p.cx+p.half*.50,bw=Math.min(72,W*.18),bh=bw*1.18;x.fillStyle='rgba(0,0,0,.24)';x.beginPath();x.ellipse(bx,p.y+5,bw*.62,bh*.14,0,0,Math.PI*2);x.fill();x.fillStyle='#e9edef';x.fillRect(bx-bw/2,p.y-bh,bw,bh);x.fillStyle='#18313d';x.fillRect(bx-bw*.40,p.y-bh*.80,bw*.80,bh*.34);x.fillStyle='#d52d2d';x.fillRect(bx-bw*.43,p.y-bh*.20,bw*.12,bh*.10);x.fillRect(bx+bw*.31,p.y-bh*.20,bw*.12,bh*.10);x.fillStyle='#34444b';x.fillRect(bx-bw*.44,p.y-bh*.05,bw*.88,bh*.08)}
+function frame(ms){requestAnimationFrame(frame);if(last&&ms-last<STEP)return;const dt=last?(ms-last)/1000:1/TARGET;last=ms;render(ms);acc+=dt;n++;if(acc>=1){const f=n/acc;fpsEl.textContent=f.toFixed(0)+' i/s';if(f<18){lowSince+=acc;highSince=0}else if(f>22){highSince+=acc;lowSince=0}else{lowSince=highSince=0}acc=0;n=0}}
+requestAnimationFrame(frame);
+})();
+</script></body></html>

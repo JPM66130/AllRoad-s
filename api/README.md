@@ -1,4 +1,4 @@
-# Nomade bêta
+# AllRoads
 
 API FastAPI pour le calcul d’itinéraire voiture ou bus, avec moteur de routage de secours, gestion des coûts, historique local et arrêts bus sauvegardés.
 
@@ -89,6 +89,7 @@ Le géocodeur est réactivé et permet de convertir automatiquement une adresse 
 - L’interface locale peut lancer des appels sans token ; une instance publique reste protégée.
 - Le fallback OSRM est la source de secours pour la route en mode sans clé ORS.
 - Les vingt tournées les plus récentes sont conservées. Une tournée peut être nommée par le conducteur et contenir jusqu’à vingt arrêts bus ; chaque arrêt conserve sa position GPS, sa précision et le sens de l’itinéraire.
+- Le compteur kilométrique est cumulatif : il continue à totaliser tous les trajets enregistrés, même lorsque les plus anciens sortent de l’historique limité à vingt tournées.
 
 ## État actuel
 

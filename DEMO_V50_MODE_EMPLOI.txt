@@ -1,0 +1,17 @@
+ALLROADS V50 — PARCOURS DE DÉMONSTRATION
+
+Objectif : la personne qui tient le téléphone doit comprendre l'essentiel sans connaître les GPS.
+
+1. Ouvrir AllRoads.
+2. Choisir un profil (Bus pour la démonstration professionnelle, Voiture pour une découverte simple).
+3. Appuyer sur « Préparer le trajet ».
+4. Saisir le départ et l'arrivée puis « Valider départ et arrivée ».
+5. Calculer l'itinéraire et lancer la simulation.
+6. Observer seulement trois choses : la route, la prochaine instruction, l'Assistant AllRoads.
+7. Pendant la démonstration professionnelle, montrer ensuite le scénario incident / retournement.
+8. Terminer par l'onglet Tests pour expliquer la logique de validation terrain.
+
+IMPORTANT
+- La simulation n'est pas un guidage GPS réel.
+- Les fonctions bus / grand gabarit / retournement sont encore en validation terrain.
+- Ne jamais présenter le routage grand gabarit comme certifié.
