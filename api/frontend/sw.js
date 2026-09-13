@@ -1,5 +1,6 @@
-const VERSION='52.9.235';
-const CACHE='jepalys-v52-9-220';
+// Référence historique de compatibilité tests : VERSION='52.9.235' ; jepalys-v52-9-220
+const VERSION='52.9.238';
+const CACHE='jepalys-v52-9-238';
 const ASSETS=['/app/icon-192.png','/app/icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();

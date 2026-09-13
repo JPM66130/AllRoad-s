@@ -1088,3 +1088,11 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Visuel « Essais route » validé ajouté aux ressources de la page d’entrée.
 - GPS, routage, tournée, clavier JEPALYS, simulation J235 et caméra non modifiés.
 - Statut : architecture prête à être publiée ; URL publique réelle à créer lors du déploiement Internet.
+
+## J238 — Finition WP35/PWA accueil + conduite
+- Base : J237 publiée, guidage/routage conservés sans modification.
+- Portrait WP35 : logo légèrement rapproché de JEPALYS, slogan remonté, marge basse sûre.
+- Paysage WP35 : compactage vertical ciblé pour rendre Itinéraire/Démarrer entièrement visibles.
+- Conduite : le point bleu GPS Leaflet devient invisible ; le véhicule JEPALYS reste l'unique repère visuel.
+- Conduite : indicateur GPS maintenu dans la barre haute afin d'éviter le chevauchement avec le véhicule.
+- Service worker/cache porté à 52.9.238 pour forcer la prise en compte sur la PWA installée.

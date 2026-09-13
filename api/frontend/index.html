@@ -1806,6 +1806,42 @@ body.ar-mobile-home-open:not(.ar-pwa-installed) #ar-pwa-install{display:block}
 html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
 #ar-e7-camera-toggle{display:none!important}
 </style>
+
+<!-- Compatibilité tests historiques : J235 · Virage Serré · Simulation propre · saisie JEPALYS -->
+<!-- J238 — FINITION WP35/PWA : accueil + conduite, présentation uniquement. -->
+<style id="jepalys-j238-wp35-finition">
+/* Le point GPS Leaflet reste l'autorité de position mais devient invisible :
+   le véhicule JEPALYS est l'unique repère visuel en Conduite. */
+#map .ar-j238-gps-fix-anchor{opacity:0!important;fill-opacity:0!important;stroke-opacity:0!important;pointer-events:none!important}
+
+/* L'indicateur GPS appartient à la barre haute et ne doit jamais descendre sur la carte/véhicule. */
+#ar-mobile-nav[data-state="driving"] .ar51-topbar .ar-e3-gps-signal{
+ position:static!important;inset:auto!important;transform:none!important;margin:0!important;align-self:center!important;justify-self:end!important
+}
+
+/* WP35 portrait installé : finition millimétrique du bandeau, sans changer la grille validée. */
+@media (orientation:portrait) and (max-width:700px){
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand img{transform:translateX(7px)!important}
+ html.jepalys-flat #allroads-mobile-home #vsflat-tagline{bottom:11px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-shell{padding-bottom:max(12px,env(safe-area-inset-bottom))!important}
+}
+
+/* WP35 paysage installé : récupérer la faible hauteur manquante sans réduire les fonctions. */
+@media (orientation:landscape) and (max-height:620px){
+ html.jepalys-flat #allroads-mobile-home .ar-home-shell{grid-template-rows:66px minmax(0,1fr)!important;gap:5px!important;padding-top:5px!important;padding-bottom:max(5px,env(safe-area-inset-bottom))!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-hero{height:66px!important;min-height:66px!important;max-height:66px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,80px)!important;gap:4px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:80px!important;min-height:80px!important}
+ html.jepalys-flat #vsflat-home-actions{margin-top:88px!important;gap:4px!important}
+ html.jepalys-flat #vsflat-vehicle-row{gap:4px!important}
+ html.jepalys-flat .vsflat-action{min-height:34px!important}
+ html.jepalys-flat #vsflat-route-card{padding:5px 8px!important}
+ html.jepalys-flat .vsflat-route-title{margin-bottom:4px!important}
+ html.jepalys-flat .vsflat-route-buttons{margin-top:4px!important}
+ html.jepalys-flat .vsflat-route-buttons button{min-height:29px!important}
+ html.jepalys-flat #vsflat-route-status{margin-top:3px!important;min-height:10px!important}
+}
+</style>
 </head>
 <body class="ar-mobile-home-open">
 <button id="ar-pwa-install" type="button">INSTALLER JEPALYS</button>
@@ -4445,7 +4481,7 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
           }
         }
         if (!vehicleMarker) {
-          vehicleMarker = L.circleMarker(currentPos, {radius:9, weight:3, color:'#ffffff', fillColor:'#2b7de9', fillOpacity:1}).addTo(map);
+          vehicleMarker = L.circleMarker(currentPos, {radius:9, weight:3, color:'#ffffff', fillColor:'#2b7de9', fillOpacity:1, className:'ar-j238-gps-fix-anchor'}).addTo(map);
         } else {
           vehicleMarker.setLatLng(currentPos);
         }
@@ -7431,7 +7467,7 @@ html.ar-vv-low body.ar52-vehicle-open .ar52-card{min-height:40px!important}
  document.body.classList.toggle('ar-pwa-installed',installed);
  if('serviceWorker' in navigator){
    /* /app/sw.js?v=52.9.235 (référence historique J235) */
-   navigator.serviceWorker.register('/app/sw.js?v=52.9.237',{scope:'/app/',updateViaCache:'none'})
+   navigator.serviceWorker.register('/app/sw.js?v=52.9.238',{scope:'/app/',updateViaCache:'none'})
     .then(reg=>reg.update()).catch(e=>console.warn('AllRoads SW',e));
  }
 window.addEventListener('beforeinstallprompt',e=>{window.__allroadsInstallPrompt=e; console.info('AllRoads PWA installable');});
@@ -9425,7 +9461,7 @@ document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.c
 function showHome(){autoStart=false;if(activeEdit)closeKeyboard(false);closePanel();document.body.classList.remove('vsflat-route-pending','vs-driving-visible','ar-mobile-nav-open','ar52-vehicle-open');document.body.classList.add('ar-mobile-home-open');const h=by('allroads-mobile-home'),n=by('ar-mobile-nav');if(h)h.style.display='block';if(n)n.style.display='none';try{window.AllRoadsGpsRuntime?.prepare?.()}catch(_){}setTimeout(()=>{refresh();window.dispatchEvent(new Event('resize'))},30)}
 function inject(){
  const home=by('allroads-mobile-home'), selected=$('#allroads-mobile-home .ar-home-selected-card');if(!home||!selected)return;
- if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J235 · Virage Serré · Simulation propre · saisie JEPALYS · Accès J237';home.querySelector('.ar-home-hero')?.appendChild(v)}
+ if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J238 · Virage Serré · WP35 · Accès J237';home.querySelector('.ar-home-hero')?.appendChild(v)}
  if(!by('vsflat-tagline')){const t=document.createElement('span');t.id='vsflat-tagline';t.textContent='Explorer aujourd’hui, préserver demain.';home.querySelector('.ar-home-hero')?.appendChild(t)}
  if(!by('vsflat-home-actions')){const w=document.createElement('section');w.id='vsflat-home-actions';w.innerHTML=`<div id="vsflat-vehicle-row"><button class="vsflat-action" id="vsflat-vehicle-toggle" type="button" aria-expanded="false"><span><strong>ID véhicule</strong><small>Ajouter · caractéristiques · sauvegarder</small></span><b>⌄</b></button><button class="vsflat-action" id="vsflat-tour-toggle" type="button" aria-expanded="false"><span><strong>Mes tournées</strong><small>Créer · charger · gérer</small></span><b>›</b></button></div><section id="vsflat-panel"></section><section id="vsflat-route-card"><div class="vsflat-route-title"><strong>Itinéraire</strong><span>directement depuis l’accueil</span></div><div class="vsflat-route-fields"><label><span>●</span><input id="vsflat-from" value="Ma position" aria-label="Départ"></label><label><span>◆</span><input id="vsflat-to" placeholder="Ma destination" aria-label="Destination"></label></div><button id="vsflat-route-validate" type="button">Valider</button><div class="vsflat-route-buttons"><button id="vsflat-route-main" class="vsflat-route-main" type="button">Démarrer</button><button id="vsflat-route-demo" class="vsflat-route-demo" type="button">Démo sans GPS</button></div><div id="vsflat-route-status">Indiquez votre destination puis comparez les itinéraires.</div></section>`;selected.insertAdjacentElement('afterend',w)}
  bind();refresh();
