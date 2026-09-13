@@ -9540,7 +9540,7 @@ document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.c
 function showHome(){autoStart=false;if(activeEdit)closeKeyboard(false);closePanel();document.body.classList.remove('vsflat-route-pending','vs-driving-visible','ar-mobile-nav-open','ar52-vehicle-open');document.body.classList.add('ar-mobile-home-open');const h=by('allroads-mobile-home'),n=by('ar-mobile-nav');if(h)h.style.display='block';if(n)n.style.display='none';try{window.AllRoadsGpsRuntime?.prepare?.()}catch(_){}setTimeout(()=>{refresh();window.dispatchEvent(new Event('resize'))},30)}
 function inject(){
  const home=by('allroads-mobile-home'), selected=$('#allroads-mobile-home .ar-home-selected-card');if(!home||!selected)return;
- if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J242 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
+ if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J243 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
  if(!by('vsflat-tagline')){const t=document.createElement('span');t.id='vsflat-tagline';t.textContent='Explorer aujourd’hui, préserver demain.';home.querySelector('.ar-home-hero')?.appendChild(t)}
  if(!by('vsflat-home-actions')){const w=document.createElement('section');w.id='vsflat-home-actions';w.innerHTML=`<div id="vsflat-vehicle-row"><button class="vsflat-action" id="vsflat-vehicle-toggle" type="button" aria-expanded="false"><span><strong>ID véhicule</strong><small>Ajouter · caractéristiques · sauvegarder</small></span><b>⌄</b></button><button class="vsflat-action" id="vsflat-tour-toggle" type="button" aria-expanded="false"><span><strong>Mes tournées</strong><small>Créer · charger · gérer</small></span><b>›</b></button></div><section id="vsflat-panel"></section><section id="vsflat-route-card"><div class="vsflat-route-title"><strong>Itinéraire</strong><span>directement depuis l’accueil</span></div><div class="vsflat-route-fields"><label><span>●</span><input id="vsflat-from" value="Ma position" aria-label="Départ"></label><label><span>◆</span><input id="vsflat-to" placeholder="Ma destination" aria-label="Destination"></label></div><button id="vsflat-route-validate" type="button">Valider</button><div class="vsflat-route-buttons"><button id="vsflat-route-main" class="vsflat-route-main" type="button">Démarrer</button><button id="vsflat-route-demo" class="vsflat-route-demo" type="button">Démo sans GPS</button></div><div id="vsflat-route-status">Indiquez votre destination puis comparez les itinéraires.</div></section>`;selected.insertAdjacentElement('afterend',w)}
  bind();refresh();
@@ -9850,6 +9850,38 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
  const by=id=>document.getElementById(id);
  function refreshManeuver(){const n=by('ar51-instruction'),a=by('ar51-arrow');if(!n||!a)return;const round=/rond-point|roundabout|rotary/i.test(n.textContent||'');a.classList.toggle('ar-j241-roundabout',round);}
  const n=by('ar51-instruction');if(n){refreshManeuver();new MutationObserver(refreshManeuver).observe(n,{childList:true,subtree:true,characterData:true});}
+})();
+</script>
+
+
+<style id="jepalys-j243-boot-state-authority">
+/* J243 — anti-écran vide : l'ancienne restauration de navigation peut remettre
+   ar-mobile-nav-open avant que Virage Serré n'ait validé vs-driving-visible.
+   Dans cet état incohérent, l'Accueil ET la Conduite étaient tous deux masqués. */
+html.jepalys-flat body:not(.vs-driving-visible) #allroads-mobile-home{
+ display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+html.jepalys-flat body:not(.vs-driving-visible) #ar-mobile-nav{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+</style>
+<script id="jepalys-j243-boot-state-js">
+(()=>{'use strict';
+ function reconcile(){
+  const b=document.body,h=document.getElementById('allroads-mobile-home'),n=document.getElementById('ar-mobile-nav');
+  if(!b||!h)return;
+  // Une Conduite n'est légitime que lorsque Virage Serré l'a explicitement validée.
+  if(!b.classList.contains('vs-driving-visible')){
+   b.classList.remove('ar-mobile-nav-open','vsflat-route-pending','ar52-vehicle-open');
+   b.classList.add('ar-mobile-home-open');
+   h.style.display='block';h.style.visibility='visible';h.style.opacity='1';
+   if(n){n.style.display='none';n.style.visibility='hidden';n.style.pointerEvents='none';}
+   try{window.JEPALYSFlat?.refresh?.()}catch(_){}
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',reconcile,{once:true});else reconcile();
+ window.addEventListener('load',()=>setTimeout(reconcile,250),{once:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(reconcile,80)});
 })();
 </script>
 

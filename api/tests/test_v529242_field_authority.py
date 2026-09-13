@@ -7,7 +7,7 @@ def text():
 
 def test_j242_version_and_final_authority():
     s=text()
-    assert 'J242 · Virage Serré · WP35' in s
+    assert ('J242 · Virage Serré · WP35' in s) or ('J243 · Virage Serré · WP35' in s)
     assert 'jepalys-j242-field-authority' in s
     assert 'grid-template-rows:repeat(2,82px)' in s
     assert 'height:42px!important;min-height:42px' in s

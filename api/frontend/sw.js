@@ -1,7 +1,7 @@
 // Compatibilité archive J240: jepalys-v52-9-240-final
 // Référence historique de compatibilité tests : VERSION='52.9.235' ; jepalys-v52-9-220
-const VERSION='52.9.242';
-const CACHE='jepalys-v52-9-242-final';
+const VERSION='52.9.243';
+const CACHE='jepalys-v52-9-243-final';
 const ASSETS=['/app/icon-192.png','/app/icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();

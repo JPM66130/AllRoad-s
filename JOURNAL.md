@@ -1151,3 +1151,10 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Arrivée / Reste / Temps : fenêtres augmentées vers le bas, y compris la version flottante quand les commandes se rétractent.
 - Tracé : largeur totale inchangée ; cœur bleu élargi et blanc réduit davantage.
 - Principe respecté : correction des autorités finales observées sur WP35, sans modification du GPS ni du routage.
+
+
+## J243 — reprise écran vide au lancement WP35
+- Banc J242 : surface bleu pétrole seule, barres Android visibles, indicateur Android de guidage encore actif.
+- Cause : état incohérent possible `ar-mobile-nav-open` sans `vs-driving-visible`; l’ancienne règle masque alors l’Accueil et l’autorité Virage Serré masque simultanément la Conduite.
+- Correction : réconciliation de l’état de démarrage. Hors Conduite explicitement validée, retour propre à l’Accueil.
+- Aucun changement GPS/routage/caméra.
