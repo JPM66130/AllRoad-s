@@ -6543,7 +6543,7 @@ body.ar-mobile-nav-open #map{
       // Le liseré sert uniquement au contraste sur satellite et reste volontairement discret.
       const weight=arRouteMetricWeightPx();
       const halo=L.polyline(pts,{className:'ar-driving-route-halo',color:'#FFFFFF',weight:Math.max(3,weight+2),opacity:.95,lineCap:'round',lineJoin:'round',interactive:false});
-      const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+1),opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
+      const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+1.6),opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
       ar52610DriveCasing=L.layerGroup([halo,guide]).addTo(map);
       arBringDrivingRouteToFront();
       // J240 — même tracé visuel en simulation et en conduite réelle.
@@ -7504,7 +7504,7 @@ html.ar-vv-low body.ar52-vehicle-open .ar52-card{min-height:40px!important}
  document.body.classList.toggle('ar-pwa-installed',installed);
  if('serviceWorker' in navigator){
    /* /app/sw.js?v=52.9.235 (référence historique J235) */
-   navigator.serviceWorker.register('/app/sw.js?v=52.9.240-final',{scope:'/app/',updateViaCache:'none'})
+   navigator.serviceWorker.register('/app/sw.js?v=52.9.241-final',{scope:'/app/',updateViaCache:'none'})
     .then(reg=>reg.update()).catch(e=>console.warn('AllRoads SW',e));
  }
 window.addEventListener('beforeinstallprompt',e=>{window.__allroadsInstallPrompt=e; console.info('AllRoads PWA installable');});
@@ -9515,7 +9515,7 @@ document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.c
 function showHome(){autoStart=false;if(activeEdit)closeKeyboard(false);closePanel();document.body.classList.remove('vsflat-route-pending','vs-driving-visible','ar-mobile-nav-open','ar52-vehicle-open');document.body.classList.add('ar-mobile-home-open');const h=by('allroads-mobile-home'),n=by('ar-mobile-nav');if(h)h.style.display='block';if(n)n.style.display='none';try{window.AllRoadsGpsRuntime?.prepare?.()}catch(_){}setTimeout(()=>{refresh();window.dispatchEvent(new Event('resize'))},30)}
 function inject(){
  const home=by('allroads-mobile-home'), selected=$('#allroads-mobile-home .ar-home-selected-card');if(!home||!selected)return;
- if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J240 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
+ if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J241 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
  if(!by('vsflat-tagline')){const t=document.createElement('span');t.id='vsflat-tagline';t.textContent='Explorer aujourd’hui, préserver demain.';home.querySelector('.ar-home-hero')?.appendChild(t)}
  if(!by('vsflat-home-actions')){const w=document.createElement('section');w.id='vsflat-home-actions';w.innerHTML=`<div id="vsflat-vehicle-row"><button class="vsflat-action" id="vsflat-vehicle-toggle" type="button" aria-expanded="false"><span><strong>ID véhicule</strong><small>Ajouter · caractéristiques · sauvegarder</small></span><b>⌄</b></button><button class="vsflat-action" id="vsflat-tour-toggle" type="button" aria-expanded="false"><span><strong>Mes tournées</strong><small>Créer · charger · gérer</small></span><b>›</b></button></div><section id="vsflat-panel"></section><section id="vsflat-route-card"><div class="vsflat-route-title"><strong>Itinéraire</strong><span>directement depuis l’accueil</span></div><div class="vsflat-route-fields"><label><span>●</span><input id="vsflat-from" value="Ma position" aria-label="Départ"></label><label><span>◆</span><input id="vsflat-to" placeholder="Ma destination" aria-label="Destination"></label></div><button id="vsflat-route-validate" type="button">Valider</button><div class="vsflat-route-buttons"><button id="vsflat-route-main" class="vsflat-route-main" type="button">Démarrer</button><button id="vsflat-route-demo" class="vsflat-route-demo" type="button">Démo sans GPS</button></div><div id="vsflat-route-status">Indiquez votre destination puis comparez les itinéraires.</div></section>`;selected.insertAdjacentElement('afterend',w)}
  bind();refresh();
@@ -9718,6 +9718,74 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
  function ensurePoi(){if(by('ar-j240-poi'))return;const m=document.createElement('section');m.id='ar-j240-poi';m.className='ar-j240-modal';m.innerHTML='<div class="ar-j240-card"><button class="ar-j240-close" aria-label="Fermer">×</button><h2>Rechercher un lieu</h2><p>Magasin + localité, centre commercial, aire, parking, station-service… Le lieu choisi devient directement la destination.</p><div class="ar-j240-searchline"><input id="ar-j240-poi-q" placeholder="ex. Carrefour Perpignan"><button id="ar-j240-poi-go">Rechercher</button></div><div class="ar-j240-row" style="margin-top:8px"><button data-cat="rest_area">Aires repos</button><button data-cat="motorhome">Aires CC</button><button data-cat="parking">Parkings</button><button data-cat="fuel">Stations</button><button data-cat="lpg">GPL</button><button data-cat="water_dump">Eau / vidange</button><button data-cat="camping">Campings</button><button data-cat="mall">Centres commerciaux</button></div><div id="ar-j240-poi-status" style="margin-top:9px;font:750 10px system-ui"></div><div id="ar-j240-poi-results"></div></div>';document.body.appendChild(m);m.querySelector('.ar-j240-close').onclick=()=>m.classList.remove('open');m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});const run=async(cat='')=>{const q=by('ar-j240-poi-q').value.trim();const st=by('ar-j240-poi-status'),out=by('ar-j240-poi-results');st.textContent='Recherche…';out.innerHTML='';let lat='',lon='';try{const p=await window.AllRoadsGpsRuntime?.requestFreshPosition?.(3500);lat=p?.coords?.latitude??'';lon=p?.coords?.longitude??''}catch(_){}const qs=new URLSearchParams();if(q)qs.set('q',q);if(cat)qs.set('category',cat);if(lat!==''&&lon!==''){qs.set('lat',lat);qs.set('lon',lon)};try{const r=await fetch('/poi/search?'+qs.toString(),{credentials:'same-origin'}),data=await r.json();if(!r.ok)throw new Error(data?.detail||'Recherche indisponible');const a=Array.isArray(data)?data:[];st.textContent=a.length?`${a.length} résultat(s)`:'Aucun lieu trouvé.';a.forEach(x=>{const b=document.createElement('button');b.className='ar-j240-result';b.innerHTML=`<strong>${String(x.nom||'Lieu').replace(/[<>]/g,'')}</strong><small>${String(x.adresse||x.localite||'').replace(/[<>]/g,'')}</small>`;b.onclick=()=>{const dest=by('vsflat-to');if(dest){dest.value=x.nom+(x.localite?`, ${x.localite}`:'');dest.dataset.poiLat=x.latitude;dest.dataset.poiLon=x.longitude;dest.dispatchEvent(new CustomEvent('input',{bubbles:true,detail:{j240Poi:true}}))}m.classList.remove('open');toast240('Lieu sélectionné comme destination.');};out.appendChild(b)});}catch(e){st.textContent=e.message||'Recherche indisponible.'}};by('ar-j240-poi-go').onclick=()=>run('');m.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>run(b.dataset.cat));}
  function installPoiButton(){const card=by('vsflat-route-card');if(!card||by('ar-j240-poi-open'))return;const b=document.createElement('button');b.id='ar-j240-poi-open';b.className='ar-j240-poi-button';b.type='button';b.textContent='⌖ Rechercher aire · parking · commerce · lieu';b.onclick=e=>{e.preventDefault();ensurePoi();by('ar-j240-poi').classList.add('open')};card.insertBefore(b,by('vsflat-route-status')||null)}
  const obs=new MutationObserver(installPoiButton);obs.observe(document.documentElement,{childList:true,subtree:true});installPoiButton();
+})();
+</script>
+
+
+<style id="jepalys-j241-field-reprise-authority">
+/* J241 — reprise du banc J240. Autorité finale unique : aucune règle après ce bloc. */
+@media (orientation:portrait) and (max-width:700px){
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,92px)!important;gap:4px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:92px!important;min-height:92px!important;max-height:92px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translate(7px,-7px)!important}
+}
+@media (orientation:landscape) and (max-height:620px){
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translateX(9px)!important}
+ html.jepalys-flat #vsflat-home-actions{margin-top:73px!important;gap:3px!important}
+ #ar-mobile-nav[data-state="driving"] .ar-e3-gps-signal{right:142px!important;width:52px!important;max-width:52px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-profile-chip{right:58px!important;width:64px!important;max-width:64px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-maneuver{height:94px!important;min-height:94px!important;padding:8px 10px 12px!important;overflow:hidden!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-limit{align-self:center!important;margin-bottom:0!important}
+ #ar-mobile-nav[data-state="driving"] .ar525-mapviews{top:158px!important;width:32px!important;max-width:32px!important;grid-template-columns:32px!important;grid-auto-rows:30px!important}
+ #ar-mobile-nav[data-state="driving"] .ar525-mapviews button{width:32px!important;min-width:32px!important;max-width:32px!important;height:30px!important;min-height:30px!important;max-height:30px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-center-map{top:252px!important;width:32px!important;height:90px!important;max-height:90px!important;grid-template-columns:32px!important;grid-auto-rows:30px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-center-map button{width:32px!important;min-width:32px!important;max-width:32px!important;height:30px!important;min-height:30px!important;max-height:30px!important;font-size:17px!important}
+}
+/* Infos trajet : les fenêtres grandissent vers le bas, mêmes dimensions dans les deux orientations. */
+#ar-mobile-nav[data-state="driving"] .ar51-stat{min-height:70px!important;height:70px!important;padding:8px 8px 11px!important;overflow:hidden!important}
+#ar-mobile-nav[data-state="driving"] .ar51-stat strong{line-height:1.05!important;margin:0!important}
+#ar-mobile-nav[data-state="driving"] .ar51-stat span{line-height:1.05!important;margin-top:4px!important}
+#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden ~ #ar52998-trip-engraved span{height:58px!important;min-height:58px!important;padding:7px 8px 9px!important;align-content:center!important;overflow:hidden!important}
+/* Clavier : récupérer environ une hauteur de bouton dans les vides, sans réduire les touches. */
+#vs207-keyboard.destination-mode{gap:4px!important}
+#vs207-keyboard.destination-mode #vs207-kb-screen{min-height:48px!important;padding-block:6px!important}
+#vs207-keyboard.destination-mode #vs214-kb-route-panel{gap:4px!important;padding:6px!important}
+#vs207-keyboard.destination-mode #vs214-kb-route-status{min-height:15px!important}
+#vs207-keyboard.destination-mode #vs207-kb-actions{margin-top:-2px!important}
+@media (orientation:portrait) and (max-width:700px){
+ #vs207-keyboard{gap:4px!important;padding-block:7px!important}
+ #vs207-keyboard.destination-mode #vs214-kb-route-panel{max-height:198px!important}
+ #vs207-keyboard.destination-mode #vs207-kb-screen{min-height:46px!important}
+}
+@media (orientation:landscape) and (max-height:620px){
+ #vs207-keyboard.destination-mode{grid-template-rows:auto auto auto 1fr auto!important;row-gap:3px!important}
+ #vs207-keyboard.destination-mode #vs214-kb-route-panel{overflow:hidden!important}
+ #vs214-kb-route-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important}
+ #vs214-kb-route-list .vs214-route-choice:nth-child(3){grid-column:1/-1!important;width:calc(50% - 2px)!important;justify-self:center!important}
+ #vs214-kb-route-panel .vs214-sub,#vs214-kb-route-note{line-height:1.05!important}
+}
+/* Schéma rond-point : cercle + entrée + sortie, pas un caractère (v). */
+#ar51-arrow.ar-j241-roundabout{font-size:0!important;position:relative!important}
+#ar51-arrow.ar-j241-roundabout::before{content:"";display:block;width:25px;height:25px;border:4px solid currentColor;border-radius:50%;box-sizing:border-box;margin:auto}
+#ar51-arrow.ar-j241-roundabout::after{content:"↗";position:absolute;font:950 19px/1 system-ui;right:0;top:0;transform:rotate(-8deg)}
+</style>
+<script id="jepalys-j241-field-reprise-js">
+(()=>{'use strict';
+ const by=id=>document.getElementById(id);
+ // Paramètres : délégation sur le document, afin de viser le bouton réellement affiché même s'il est recréé.
+ document.addEventListener('click',e=>{const b=e.target.closest?.('#allroads-mobile-home .ar-settings');if(!b)return;e.preventDefault();e.stopImmediatePropagation();let m=by('ar-j240-settings');if(!m){m=document.createElement('section');m.id='ar-j240-settings';m.className='ar-j240-modal';m.innerHTML='<div class="ar-j240-card"><button class="ar-j240-close" aria-label="Fermer">×</button><h2>Paramètres JEPALYS</h2><p>Affichage de conduite</p><div class="ar-j240-row"><button data-j241-mode="day">Jour</button><button data-j241-mode="auto">Auto</button><button data-j241-mode="night">Nuit</button></div></div>';document.body.appendChild(m);m.querySelector('.ar-j240-close').onclick=()=>m.classList.remove('open');m.addEventListener('click',x=>{if(x.target===m)m.classList.remove('open')});m.querySelectorAll('[data-j241-mode]').forEach(x=>x.onclick=()=>{localStorage.setItem('jepalys-display-mode',x.dataset.j241Mode);location.reload()});}m.classList.add('open')},true);
+ // Français commun à l'écran et au vocal : normalisation du texte AVANT lecture par la synthèse.
+ function fr(t){let s=String(t||'').trim();if(!s)return s;const rules=[
+  [/^continue( straight)?( on)?/i,'Continuez sur'],[/^keep (left|right)/i,(_,d)=>d.toLowerCase()==='left'?'Restez à gauche':'Restez à droite'],
+  [/^turn left/i,'Tournez à gauche'],[/^turn right/i,'Tournez à droite'],[/^bear left/i,'Serrez à gauche'],[/^bear right/i,'Serrez à droite'],
+  [/^at the roundabout,? take the (\d+)(?:st|nd|rd|th) exit/i,(_,n)=>`Au rond-point, prenez la ${n}e sortie`],
+  [/^enter the roundabout/i,'Entrez dans le rond-point'],[/^make a u-turn/i,'Faites demi-tour'],[/^arrive at/i,'Arrivée à'],[/^destination/i,'Destination']
+ ];for(const [r,v] of rules)if(r.test(s)){s=s.replace(r,v);break}return s.replace(/\bonto\b/gi,'sur').replace(/\btoward(?:s)?\b/gi,'direction').replace(/\bexit\b/gi,'sortie');}
+ function normalizeNode(n){if(!n)return;const v=fr(n.textContent);if(v&&v!==n.textContent)n.textContent=v;}
+ const ids=['ar51-instruction','map-instruction-text','visual-guide-instruction','driver-callout-main'];
+ ids.forEach(id=>{const n=by(id);if(!n)return;normalizeNode(n);new MutationObserver(()=>{normalizeNode(n);if(id==='ar51-instruction'){const a=by('ar51-arrow');a?.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(n.textContent||''));}}).observe(n,{childList:true,subtree:true,characterData:true})});
+ // Si une ancienne couche remet le symbole du rond-point, notre classe reste l'autorité visuelle.
+ const ins=by('ar51-instruction'),arrow=by('ar51-arrow');if(ins&&arrow)arrow.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(ins.textContent||''));
 })();
 </script>
 

@@ -20,5 +20,5 @@ def test_j240_service_worker_cache_busted_for_final_package():
     sw1 = (ROOT / "api" / "frontend" / "sw.js").read_text(encoding="utf-8")
     sw2 = (ROOT / "frontend" / "sw.js").read_text(encoding="utf-8")
     assert sw1 == sw2
-    assert "jepalys-v52-9-240-final" in sw1
-    assert "sw.js?v=52.9.240-final" in API.read_text(encoding="utf-8")
+    assert "jepalys-v52-9-241" in sw1
+    assert "sw.js?v=52.9.241" in API.read_text(encoding="utf-8")

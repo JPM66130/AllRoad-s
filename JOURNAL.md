@@ -1129,3 +1129,16 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Un lieu proposé conserve ses coordonnées exactes pour le calcul d’itinéraire, sans regéocodage approximatif.
 - Présentation compacte en portrait et intégrée à la colonne clavier en paysage.
 - Cache PWA final J240 renouvelé pour éviter qu’un ancien J240 reste affiché après déploiement.
+
+
+## J241 — reprise globale après banc J240
+- Accueil portrait : vignettes réellement réduites, logo remonté.
+- Accueil paysage : logo décalé à droite et bloc Itinéraire/Démarrer remonté pour supprimer la coupe basse.
+- Conduite paysage : séparation GPS/profil, commandes Carte/Relief/Satellite et loupe compactées, panneau de manœuvre/70 agrandi.
+- Arrivée/Reste/Temps : trois fenêtres harmonisées et agrandies vers le bas dans les deux orientations.
+- Tracé : largeur totale conservée, liseré blanc aminci et largeur rendue au cœur bleu.
+- Clavier JEPALYS : espaces verticaux resserrés ; portrait compact ; paysage 3 propositions en 2+1 pour éviter le défilement.
+- Rond-point : pictogramme schématique circulaire remplace le symbole ambigu.
+- Paramètres : délégation directe sur le bouton réellement affiché ; Jour/Auto/Nuit accessible, Auto conservé par défaut.
+- Instructions : normalisation française commune sur les principaux champs de guidage.
+- render.yaml contrôlé : pip install -r api/requirements.txt.
