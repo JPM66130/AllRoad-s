@@ -17,9 +17,9 @@ def test_route_is_visual_authority():
     assert "className:'ar-driving-route-halo'" in HTML
     assert "className:'ar-driving-route-core'" in HTML
     assert "color:'#0A7BFF'" in HTML
-    assert "color:'#003B80'" in HTML
+    assert "color:'#FFFFFF'" in HTML
     assert 'arBringDrivingRouteToFront();' in HTML
-    assert 'Math.max(6,weight+5)' in HTML
+    assert 'Math.max(3,weight+2)' in HTML
 
 def test_field_camera_is_realistic_not_perspective_experiment():
     assert 'const horizonSeconds=50;' in HTML

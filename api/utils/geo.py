@@ -285,6 +285,7 @@ def _route_routiere(client, start, end, profile, options=None):
         "coordinates": [[start[1], start[0]], [end[1], end[0]]],
         "profile": profile,
         "format": "geojson",
+        "language": "fr",
     }
     if options:
         kwargs["options"] = options
@@ -447,6 +448,7 @@ def calcul_itineraire(
                 "profile": ors_profile,
                 "format": "geojson",
                 "preference": preference if preference in {"recommended", "fastest", "shortest"} else "recommended",
+                "language": "fr",
             }
             options = _ors_vehicle_options(profil, contraintes) or {}
             if avoid_features:

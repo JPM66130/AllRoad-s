@@ -1096,3 +1096,14 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Conduite : le point bleu GPS Leaflet devient invisible ; le véhicule JEPALYS reste l'unique repère visuel.
 - Conduite : indicateur GPS maintenu dans la barre haute afin d'éviter le chevauchement avec le véhicule.
 - Service worker/cache porté à 52.9.238 pour forcer la prise en compte sur la PWA installée.
+
+
+## J239 — contrôle terrain WP35 / conduite
+- Référence : retour terrain J238 sur PWA WP35.
+- Simulation sans GPS : mouvement continu par interpolation de distance sur le vrai tracé ; guidage et caméra cadencés séparément.
+- Tracé conduite : cœur bleu + fin liseré blanc ; suppression du halo sombre/gris épais.
+- Zoom paysage : les 3 commandes localisation / + / − restent visibles.
+- Instructions : fenêtre manœuvre recalée ; texte contenu dans son champ ; ORS demandé en français + filet de normalisation UI.
+- Barre système Android : thème clair afin de conserver les informations utiles (heure/réseau) visibles dans la PWA.
+- Position : point GPS maintenu temporairement visible comme témoin de vérité ; véhicule placé dans le même pane visuel pour supprimer l'écart de transformation avant suppression définitive du point.
+- Déploiement Render : buildCommand fixé sur api/requirements.txt.

@@ -8,7 +8,7 @@
 <meta content="#07111d" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
@@ -1789,10 +1789,10 @@ html.ar-fullscreen-active,html.ar-fullscreen-active body{width:100%;height:100%;
 </style>
 <link href="/app/manifest.webmanifest?v=52.9.100" rel="manifest"/>
 <link href="/app/icon-192.png" rel="icon"/>
-<meta content="#07121f" name="theme-color"/>
+<meta content="#f5f8fb" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
 <style id="allroads-v52945-pwa">
 #ar-pwa-install{position:fixed;left:10px;top:8px;z-index:2147483001;border:1px solid rgba(255,255,255,.75);border-radius:999px;background:#0b3858;color:#fff;height:30px;padding:0 10px;font:800 9px/1 'DM Sans',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.22);display:none}
 body.ar-mobile-home-open:not(.ar-pwa-installed) #ar-pwa-install{display:block}
@@ -1810,9 +1810,9 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
 <!-- Compatibilité tests historiques : J235 · Virage Serré · Simulation propre · saisie JEPALYS -->
 <!-- J238 — FINITION WP35/PWA : accueil + conduite, présentation uniquement. -->
 <style id="jepalys-j238-wp35-finition">
-/* Le point GPS Leaflet reste l'autorité de position mais devient invisible :
-   le véhicule JEPALYS est l'unique repère visuel en Conduite. */
-#map .ar-j238-gps-fix-anchor{opacity:0!important;fill-opacity:0!important;stroke-opacity:0!important;pointer-events:none!important}
+/* J239 diagnostic terrain : le point GPS reste provisoirement visible tant que
+   le véhicule graphique n'est pas démontré exactement superposé au fix réel. */
+#map .ar-j238-gps-fix-anchor{opacity:1!important;fill-opacity:1!important;stroke-opacity:1!important;pointer-events:none!important}
 
 /* L'indicateur GPS appartient à la barre haute et ne doit jamais descendre sur la carte/véhicule. */
 #ar-mobile-nav[data-state="driving"] .ar51-topbar .ar-e3-gps-signal{
@@ -5734,7 +5734,7 @@ body.ar-mobile-nav-open #map{
     return `<div class="ar-e7-vehicle-clean"><svg viewBox="0 0 60 74" role="img" aria-label="Véhicule ${kind}"><ellipse cx="30" cy="68" rx="${w*.52}" ry="4" fill="rgba(8,30,45,.22)"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${longVehicle?6:10}" fill="#f7fafc" stroke="#123d5a" stroke-width="2"/><rect x="${x+4}" y="${y+5}" width="${w-8}" height="${Math.max(10,h*.23)}" rx="3" fill="#8fc7e5"/><path d="M${x+5} ${y+h-8}h${w-10}" stroke="#1f77c8" stroke-width="4" stroke-linecap="round"/>${label?`<text x="30" y="${y+h*.60}" text-anchor="middle" font-size="9" font-weight="800" fill="#123d5a">${label}</text>`:''}</svg></div>`;
   }
   function makeNeutralVehicleMarker(pos){
-    try{return L.marker(pos,{zIndexOffset:900,icon:L.divIcon({className:'ar5263-vehicle-icon',html:neutralVehicleSvg(),iconSize:[48,58],iconAnchor:[24,43]})}).addTo(map)}catch(_){return L.circleMarker(pos,{radius:8,weight:4,color:'#fff',fillColor:'#176cd0',fillOpacity:1}).addTo(map)}
+    try{return L.marker(pos,{pane:'overlayPane',zIndexOffset:900,icon:L.divIcon({className:'ar5263-vehicle-icon',html:neutralVehicleSvg(),iconSize:[48,58],iconAnchor:[24,43]})}).addTo(map)}catch(_){return L.circleMarker(pos,{radius:8,weight:4,color:'#fff',fillColor:'#176cd0',fillOpacity:1}).addTo(map)}
   }
   function arE7FreshRealGpsLatLng(){
     try{
@@ -5827,10 +5827,10 @@ body.ar-mobile-nav-open #map{
   async function enterGpsFullscreen(){return false}
   let driveStartRequested=false;
   // J232 — simulation sans GPS sur le vrai tracé calculé.
-  let arJ232SimTimer=null, arJ232SimStartedAt=0, arJ232SimDurationMs=0, arJ232SimPts=[], arJ232SimCum=[], arJ232SimTotalM=0, arJ232SimPos=null;
+  let arJ232SimTimer=null, arJ232SimRaf=0, arJ232SimStartedAt=0, arJ232SimDurationMs=0, arJ232SimPts=[], arJ232SimCum=[], arJ232SimTotalM=0, arJ232SimPos=null, arJ232LastGuidanceAt=0, arJ232LastCameraAt=0;
   window.__allroadsRouteSimulationMode=false;
   function arJ232StopRouteSimulation(clearVisual=true){
-    if(arJ232SimTimer){clearInterval(arJ232SimTimer);arJ232SimTimer=null;}
+    if(arJ232SimTimer){clearInterval(arJ232SimTimer);arJ232SimTimer=null;} if(arJ232SimRaf){cancelAnimationFrame(arJ232SimRaf);arJ232SimRaf=0;}
     arJ232SimStartedAt=0;arJ232SimDurationMs=0;arJ232SimPts=[];arJ232SimCum=[];arJ232SimTotalM=0;arJ232SimPos=null;
     if(clearVisual)window.__allroadsRouteSimulationMode=false;
   }
@@ -5871,15 +5871,17 @@ body.ar-mobile-nav-open #map{
     const i=Math.max(1,lo),a=arJ232SimPts[i-1],b=arJ232SimPts[i],d0=arJ232SimCum[i-1],d1=arJ232SimCum[i],r=d1>d0?(d-d0)/(d1-d0):0;
     return L.latLng(a.lat+(b.lat-a.lat)*r,a.lng+(b.lng-a.lng)*r);
   }
-  function arJ232ApplySimProgress(frac){
+  function arJ232ApplySimProgress(frac, now=performance.now()){
     if(!arJ232SimTotalM)return;
     const numeric=Number(frac);if(!Number.isFinite(numeric))return;
     const f=Math.max(0,Math.min(1,numeric)),pos=arJ232PointAtDistance(arJ232SimTotalM*f);if(!pos)return;arJ232SimPos=pos;
+    // J239 : le véhicule est interpolé en continu par DISTANCE LE LONG DU TRACE.
+    // Les calculs lourds restent cadencés séparément pour garder la carte fluide.
     try{if(!mobileDriveMarker)mobileDriveMarker=makeNeutralVehicleMarker(pos);else mobileDriveMarker.setLatLng(pos);}catch(_){}
-    try{updateGpsGuidance(pos.lat,pos.lng,5);}catch(_){}
     const avgKmh=arJ232SimDurationMs>0?(arJ232SimTotalM/1000)/(arJ232SimDurationMs/3600000):0;
     window.AllRoadsDrivingSpeed?.simulation(Math.max(1,Math.min(130,avgKmh)));
-    try{focusDrivingRoute();}catch(_){}
+    if(now-arJ232LastGuidanceAt>=250 || f>=1){arJ232LastGuidanceAt=now;try{updateGpsGuidance(pos.lat,pos.lng,5);}catch(_){}}
+    if(now-arJ232LastCameraAt>=80 || f>=1){arJ232LastCameraAt=now;try{focusDrivingRoute();}catch(_){}}
     const lab=document.getElementById('ar51-demo-label');if(lab){lab.style.display='inline-flex';lab.textContent=`SIMULATION SANS GPS · ${Math.round(f*100)} %`;}
     window.__allroadsRouteSimulationState={running:f<1,progress:f,lat:pos.lat,lng:pos.lng,speedKmh:avgKmh,durationMs:arJ232SimDurationMs,totalM:arJ232SimTotalM,at:Date.now()};
     if(f>=1){
@@ -5894,9 +5896,10 @@ body.ar-mobile-nav-open #map{
     if(!arJ232BuildRouteSimulation()){toast('Simulation indisponible : aucun itinéraire réel calculé.');return false;}
     window.__allroadsRouteSimulationMode=true;
     try{document.body.dataset.arVisualMode='real';window.AllRoadsVisualBrick?.apply?.('driving');arE7EnsureBaseLayer();map.invalidateSize({animate:false,pan:false});}catch(_){ }
-    arJ232SimStartedAt=Date.now();arJ232ApplySimProgress(0);
-    arJ232SimTimer=setInterval(()=>{const f=(Date.now()-arJ232SimStartedAt)/arJ232SimDurationMs;arJ232ApplySimProgress(f);},500);
-    toast('SIMULATION SANS GPS · déplacement sur le vrai tracé calculé',3200);
+    arJ232SimStartedAt=performance.now();arJ232LastGuidanceAt=0;arJ232LastCameraAt=0;arJ232ApplySimProgress(0,arJ232SimStartedAt);
+    const arJ239SimFrame=(now)=>{if(!window.__allroadsRouteSimulationMode||!arJ232SimDurationMs)return;const f=(now-arJ232SimStartedAt)/arJ232SimDurationMs;arJ232ApplySimProgress(f,now);if(f<1)arJ232SimRaf=requestAnimationFrame(arJ239SimFrame);};
+    arJ232SimRaf=requestAnimationFrame(arJ239SimFrame);
+    toast('SIMULATION SANS GPS · déplacement fluide sur le vrai tracé calculé',3200);
     return true;
   }
   let ar52967DemoSpeedTimer=null;
@@ -6491,7 +6494,7 @@ body.ar-mobile-nav-open #map{
         if(!l||!l.setStyle)return;
         const isHalo=(l.options?.className||'').includes('ar-driving-route-halo');
         l.setStyle(isHalo
-          ? {weight:Math.max(6,weight+5),color:'#003B80',opacity:.72,lineCap:'round',lineJoin:'round'}
+          ? {weight:Math.max(3,weight+2),color:'#FFFFFF',opacity:.96,lineCap:'round',lineJoin:'round'}
           : {weight,color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
       });
     }catch(_){}
@@ -6506,10 +6509,10 @@ body.ar-mobile-nav-open #map{
       if(ar52610DriveCasing){map.removeLayer(ar52610DriveCasing);ar52610DriveCasing=null;}
       if(!pts||pts.length<2)return;
       // V52.9.231 — mode test terrain réalisable : le tracé reste l'autorité visuelle.
-      // Le cœur bleu conserve la largeur métrique véhicule +5 %. Un halo BLEU sombre,
-      // non métrique et non interactif, ne sert qu'au contraste sur satellite : jamais de route grise artificielle.
+      // Le cœur bleu conserve la largeur métrique véhicule +5 %. Un fin liseré BLANC
+      // non métrique et non interactif assure le contraste : jamais de halo gris/bleu épais.
       const weight=arRouteMetricWeightPx();
-      const halo=L.polyline(pts,{className:'ar-driving-route-halo',color:'#003B80',weight:Math.max(6,weight+5),opacity:.72,lineCap:'round',lineJoin:'round',interactive:false});
+      const halo=L.polyline(pts,{className:'ar-driving-route-halo',color:'#FFFFFF',weight:Math.max(3,weight+2),opacity:.96,lineCap:'round',lineJoin:'round',interactive:false});
       const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight,opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
       ar52610DriveCasing=L.layerGroup([halo,guide]).addTo(map);
       arBringDrivingRouteToFront();
@@ -9555,5 +9558,51 @@ function boot(){inject();installProfilePhaseVisuals();refreshRoutePrefs();ensure
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();window.addEventListener('load',()=>setTimeout(boot,180));window.addEventListener('storage',()=>setTimeout(refresh,0));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(refresh,60)});
 window.JEPALYSFlat={refresh,vehicleMenu,tourMenu,closePanel,showHome};
 })();
-</script></body>
+</script>
+<style id="jepalys-j239-terrain-authority">
+/* J239 — autorité finale WP35/PWA, placée après toutes les règles historiques. */
+#ar-mobile-nav[data-state="driving"] .ar51-center-map,
+#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden .ar51-center-map{
+  grid-template-columns:40px!important;grid-auto-rows:42px!important;
+  width:40px!important;height:126px!important;max-height:126px!important;overflow:visible!important;
+}
+#ar-mobile-nav[data-state="driving"] .ar51-center-map button{
+  width:40px!important;height:42px!important;min-height:42px!important;max-height:42px!important;
+  display:grid!important;place-items:center!important;line-height:1!important;
+}
+#ar-mobile-nav[data-state="driving"] .ar51-maneuver{
+  height:78px!important;min-height:78px!important;padding:7px 10px!important;align-items:center!important;
+  grid-template-columns:48px minmax(0,1fr) 48px!important;
+}
+#ar-mobile-nav[data-state="driving"] .ar51-step{align-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:0!important;overflow:hidden!important}
+#ar-mobile-nav[data-state="driving"] .ar51-step strong{font-size:25px!important;line-height:.98!important;margin:0!important}
+#ar-mobile-nav[data-state="driving"] .ar51-step span{font-size:12px!important;line-height:1.12!important;margin:4px 0 0!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden!important}
+#ar-mobile-nav[data-state="driving"] .ar51-limit{align-self:center!important;justify-self:end!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
+/* Le point GPS reste visible en J239 comme témoin de vérité pendant le recalage véhicule. */
+#map .ar-j238-gps-fix-anchor{opacity:1!important;fill-opacity:1!important;stroke-opacity:1!important}
+</style>
+<script id="jepalys-j239-french-guidance">
+(function(){
+  const rules=[
+    [/\bturn right\b/gi,'tournez à droite'],[/\bturn left\b/gi,'tournez à gauche'],
+    [/\bslight right\b/gi,'prenez légèrement à droite'],[/\bslight left\b/gi,'prenez légèrement à gauche'],
+    [/\bkeep right\b/gi,'restez à droite'],[/\bkeep left\b/gi,'restez à gauche'],
+    [/\bcontinue straight\b/gi,'continuez tout droit'],[/\bcontinue\b/gi,'continuez'],
+    [/\bat the roundabout\b/gi,'au rond-point'],[/\broundabout\b/gi,'rond-point'],
+    [/\btake the ([0-9]+)(?:st|nd|rd|th) exit\b/gi,'prenez la sortie $1'],
+    [/\bmake a u-turn\b/gi,'faites demi-tour'],[/\bu-turn\b/gi,'demi-tour'],
+    [/\byou have arrived(?: at your destination)?\b/gi,'vous êtes arrivé à destination'],
+    [/\bdestination is on the right\b/gi,'destination à droite'],[/\bdestination is on the left\b/gi,'destination à gauche']
+  ];
+  window.JEPALYSFrenchInstruction=function(v){let t=String(v||'').trim();for(const [re,fr] of rules)t=t.replace(re,fr);return t||'Continuez sur l’itinéraire'};
+  const normalize=()=>{
+    for(const id of ['ar51-instruction','map-instruction-text','driver-callout-main','driver-next','map-next-step-text','visual-guide-instruction']){
+      const el=document.getElementById(id);if(el&&/[A-Za-z]/.test(el.textContent||'')){const before=el.textContent,after=window.JEPALYSFrenchInstruction(before);if(after!==before)el.textContent=after;}
+    }
+  };
+  new MutationObserver(normalize).observe(document.body,{subtree:true,childList:true,characterData:true});
+  normalize();
+})();
+</script>
+</body>
 </html>
