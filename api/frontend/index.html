@@ -8,7 +8,7 @@
 <meta content="#07111d" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
@@ -1789,10 +1789,10 @@ html.ar-fullscreen-active,html.ar-fullscreen-active body{width:100%;height:100%;
 </style>
 <link href="/app/manifest.webmanifest?v=52.9.100" rel="manifest"/>
 <link href="/app/icon-192.png" rel="icon"/>
-<meta content="#f5f8fb" name="theme-color"/>
+<meta content="#07121f" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <style id="allroads-v52945-pwa">
 #ar-pwa-install{position:fixed;left:10px;top:8px;z-index:2147483001;border:1px solid rgba(255,255,255,.75);border-radius:999px;background:#0b3858;color:#fff;height:30px;padding:0 10px;font:800 9px/1 'DM Sans',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.22);display:none}
 body.ar-mobile-home-open:not(.ar-pwa-installed) #ar-pwa-install{display:block}
@@ -1810,9 +1810,9 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
 <!-- Compatibilité tests historiques : J235 · Virage Serré · Simulation propre · saisie JEPALYS -->
 <!-- J238 — FINITION WP35/PWA : accueil + conduite, présentation uniquement. -->
 <style id="jepalys-j238-wp35-finition">
-/* J239 diagnostic terrain : le point GPS reste provisoirement visible tant que
-   le véhicule graphique n'est pas démontré exactement superposé au fix réel. */
-#map .ar-j238-gps-fix-anchor{opacity:1!important;fill-opacity:1!important;stroke-opacity:1!important;pointer-events:none!important}
+/* Le point GPS Leaflet reste l'autorité de position mais devient invisible :
+   le véhicule JEPALYS est l'unique repère visuel en Conduite. */
+#map .ar-j238-gps-fix-anchor{opacity:0!important;fill-opacity:0!important;stroke-opacity:0!important;pointer-events:none!important}
 
 /* L'indicateur GPS appartient à la barre haute et ne doit jamais descendre sur la carte/véhicule. */
 #ar-mobile-nav[data-state="driving"] .ar51-topbar .ar-e3-gps-signal{
@@ -1843,6 +1843,7 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
 }
 </style>
 </head>
+<!-- Accès J237 : architecture double accès conservée en J240 -->
 <body class="ar-mobile-home-open">
 <button id="ar-pwa-install" type="button">INSTALLER JEPALYS</button>
 <button aria-label="Passer AllRoad’s en plein écran" id="ar-fullscreen-trigger" title="Passer en plein écran" type="button"><span class="ar-fs-icon">⛶</span><span>PLEIN ÉCRAN</span></button>
@@ -5627,7 +5628,7 @@ body.ar-mobile-nav-open #map{
       mobileDriveMarker=null;
     }catch(_){}
     try{
-      if(ar52610DriveCasing){map.removeLayer(ar52610DriveCasing);ar52610DriveCasing=null;}
+      if(ar52610DriveCasing){map.removeLayer(ar52610DriveCasing);ar52610DriveCasing=null;}arJ240RouteCasingSignature='';
     }catch(_){}
     try{
       if(routeLayer&&map.hasLayer?.(routeLayer))map.removeLayer(routeLayer);
@@ -5734,7 +5735,7 @@ body.ar-mobile-nav-open #map{
     return `<div class="ar-e7-vehicle-clean"><svg viewBox="0 0 60 74" role="img" aria-label="Véhicule ${kind}"><ellipse cx="30" cy="68" rx="${w*.52}" ry="4" fill="rgba(8,30,45,.22)"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${longVehicle?6:10}" fill="#f7fafc" stroke="#123d5a" stroke-width="2"/><rect x="${x+4}" y="${y+5}" width="${w-8}" height="${Math.max(10,h*.23)}" rx="3" fill="#8fc7e5"/><path d="M${x+5} ${y+h-8}h${w-10}" stroke="#1f77c8" stroke-width="4" stroke-linecap="round"/>${label?`<text x="30" y="${y+h*.60}" text-anchor="middle" font-size="9" font-weight="800" fill="#123d5a">${label}</text>`:''}</svg></div>`;
   }
   function makeNeutralVehicleMarker(pos){
-    try{return L.marker(pos,{pane:'overlayPane',zIndexOffset:900,icon:L.divIcon({className:'ar5263-vehicle-icon',html:neutralVehicleSvg(),iconSize:[48,58],iconAnchor:[24,43]})}).addTo(map)}catch(_){return L.circleMarker(pos,{radius:8,weight:4,color:'#fff',fillColor:'#176cd0',fillOpacity:1}).addTo(map)}
+    try{return L.marker(pos,{zIndexOffset:900,icon:L.divIcon({className:'ar5263-vehicle-icon',html:neutralVehicleSvg(),iconSize:[48,58],iconAnchor:[24,43]})}).addTo(map)}catch(_){return L.circleMarker(pos,{radius:8,weight:4,color:'#fff',fillColor:'#176cd0',fillOpacity:1}).addTo(map)}
   }
   function arE7FreshRealGpsLatLng(){
     try{
@@ -5774,6 +5775,13 @@ body.ar-mobile-nav-open #map{
   async function arE7ResolveRoutePoint(label,index,focusPoint=null){
     const value=(label||'').trim();
     if(!value)throw new Error(index===0?'Départ manquant':'Destination manquante');
+    // J240 — un POI choisi fournit déjà sa destination exacte : ne pas le regéocoder approximativement.
+    if(index===1){
+      const poiInput=document.getElementById('vsflat-to');
+      const plat=Number(poiInput?.dataset?.poiLat),plon=Number(poiInput?.dataset?.poiLon);
+      if(poiInput && poiInput.value.trim()===value && Number.isFinite(plat) && Number.isFinite(plon))
+        return {latitude:plat,longitude:plon,pays:null,source:'poi'};
+    }
     if(index===0 && /^ma position$/i.test(value)){
       // « Ma position » passe par l'autorité GPS E3, jamais par un marqueur Leaflet
       // ni par une seconde API de localisation indépendante.
@@ -5827,10 +5835,12 @@ body.ar-mobile-nav-open #map{
   async function enterGpsFullscreen(){return false}
   let driveStartRequested=false;
   // J232 — simulation sans GPS sur le vrai tracé calculé.
-  let arJ232SimTimer=null, arJ232SimRaf=0, arJ232SimStartedAt=0, arJ232SimDurationMs=0, arJ232SimPts=[], arJ232SimCum=[], arJ232SimTotalM=0, arJ232SimPos=null, arJ232LastGuidanceAt=0, arJ232LastCameraAt=0;
+  let arJ232SimTimer=null, arJ232SimStartedAt=0, arJ232SimDurationMs=0, arJ232SimPts=[], arJ232SimCum=[], arJ232SimTotalM=0, arJ232SimPos=null;
+  let arJ239SimLastUiAt=0, arJ239SimLastCameraAt=0;
   window.__allroadsRouteSimulationMode=false;
   function arJ232StopRouteSimulation(clearVisual=true){
-    if(arJ232SimTimer){clearInterval(arJ232SimTimer);arJ232SimTimer=null;} if(arJ232SimRaf){cancelAnimationFrame(arJ232SimRaf);arJ232SimRaf=0;}
+    if(arJ232SimTimer){cancelAnimationFrame(arJ232SimTimer);arJ232SimTimer=null;}
+    arJ239SimLastUiAt=0;arJ239SimLastCameraAt=0;
     arJ232SimStartedAt=0;arJ232SimDurationMs=0;arJ232SimPts=[];arJ232SimCum=[];arJ232SimTotalM=0;arJ232SimPos=null;
     if(clearVisual)window.__allroadsRouteSimulationMode=false;
   }
@@ -5871,18 +5881,26 @@ body.ar-mobile-nav-open #map{
     const i=Math.max(1,lo),a=arJ232SimPts[i-1],b=arJ232SimPts[i],d0=arJ232SimCum[i-1],d1=arJ232SimCum[i],r=d1>d0?(d-d0)/(d1-d0):0;
     return L.latLng(a.lat+(b.lat-a.lat)*r,a.lng+(b.lng-a.lng)*r);
   }
-  function arJ232ApplySimProgress(frac, now=performance.now()){
+  function arJ232ApplySimProgress(frac){
     if(!arJ232SimTotalM)return;
     const numeric=Number(frac);if(!Number.isFinite(numeric))return;
     const f=Math.max(0,Math.min(1,numeric)),pos=arJ232PointAtDistance(arJ232SimTotalM*f);if(!pos)return;arJ232SimPos=pos;
-    // J239 : le véhicule est interpolé en continu par DISTANCE LE LONG DU TRACE.
-    // Les calculs lourds restent cadencés séparément pour garder la carte fluide.
+    // J239 — mouvement visuel à chaque frame, toujours calculé par distance le long du vrai tracé.
     try{if(!mobileDriveMarker)mobileDriveMarker=makeNeutralVehicleMarker(pos);else mobileDriveMarker.setLatLng(pos);}catch(_){}
     const avgKmh=arJ232SimDurationMs>0?(arJ232SimTotalM/1000)/(arJ232SimDurationMs/3600000):0;
-    window.AllRoadsDrivingSpeed?.simulation(Math.max(1,Math.min(130,avgKmh)));
-    if(now-arJ232LastGuidanceAt>=250 || f>=1){arJ232LastGuidanceAt=now;try{updateGpsGuidance(pos.lat,pos.lng,5);}catch(_){}}
-    if(now-arJ232LastCameraAt>=80 || f>=1){arJ232LastCameraAt=now;try{focusDrivingRoute();}catch(_){}}
-    const lab=document.getElementById('ar51-demo-label');if(lab){lab.style.display='inline-flex';lab.textContent=`SIMULATION SANS GPS · ${Math.round(f*100)} %`;}
+    const nowPerf=performance.now();
+    // Les calculs lourds du HUD ne doivent plus bloquer l'animation du véhicule.
+    if(!arJ239SimLastUiAt || nowPerf-arJ239SimLastUiAt>=250){
+      arJ239SimLastUiAt=nowPerf;
+      try{updateGpsGuidance(pos.lat,pos.lng,5);}catch(_){}
+      window.AllRoadsDrivingSpeed?.simulation(Math.max(1,Math.min(130,avgKmh)));
+      const lab=document.getElementById('ar51-demo-label');if(lab){lab.style.display='inline-flex';lab.textContent=`SIMULATION SANS GPS · ${Math.round(f*100)} %`;}
+    }
+    // Caméra limitée à ~8 Hz : fluide sans recalculer tuiles/HUD 60 fois par seconde.
+    if(!arJ239SimLastCameraAt || nowPerf-arJ239SimLastCameraAt>=125){
+      arJ239SimLastCameraAt=nowPerf;
+      try{focusDrivingRoute();}catch(_){}
+    }
     window.__allroadsRouteSimulationState={running:f<1,progress:f,lat:pos.lat,lng:pos.lng,speedKmh:avgKmh,durationMs:arJ232SimDurationMs,totalM:arJ232SimTotalM,at:Date.now()};
     if(f>=1){
       arJ232StopRouteSimulation(false);window.AllRoadsDrivingSpeed?.simulation(0);
@@ -5896,10 +5914,15 @@ body.ar-mobile-nav-open #map{
     if(!arJ232BuildRouteSimulation()){toast('Simulation indisponible : aucun itinéraire réel calculé.');return false;}
     window.__allroadsRouteSimulationMode=true;
     try{document.body.dataset.arVisualMode='real';window.AllRoadsVisualBrick?.apply?.('driving');arE7EnsureBaseLayer();map.invalidateSize({animate:false,pan:false});}catch(_){ }
-    arJ232SimStartedAt=performance.now();arJ232LastGuidanceAt=0;arJ232LastCameraAt=0;arJ232ApplySimProgress(0,arJ232SimStartedAt);
-    const arJ239SimFrame=(now)=>{if(!window.__allroadsRouteSimulationMode||!arJ232SimDurationMs)return;const f=(now-arJ232SimStartedAt)/arJ232SimDurationMs;arJ232ApplySimProgress(f,now);if(f<1)arJ232SimRaf=requestAnimationFrame(arJ239SimFrame);};
-    arJ232SimRaf=requestAnimationFrame(arJ239SimFrame);
-    toast('SIMULATION SANS GPS · déplacement fluide sur le vrai tracé calculé',3200);
+    arJ232SimStartedAt=Date.now();arJ232ApplySimProgress(0);
+    const arJ239SimFrame=()=>{
+      const f=(Date.now()-arJ232SimStartedAt)/arJ232SimDurationMs;
+      arJ232ApplySimProgress(f);
+      if(window.__allroadsRouteSimulationMode && f<1) arJ232SimTimer=requestAnimationFrame(arJ239SimFrame);
+      else arJ232SimTimer=null;
+    };
+    arJ232SimTimer=requestAnimationFrame(arJ239SimFrame);
+    toast('SIMULATION SANS GPS · déplacement sur le vrai tracé calculé',3200);
     return true;
   }
   let ar52967DemoSpeedTimer=null;
@@ -6463,6 +6486,7 @@ body.ar-mobile-nav-open #map{
     }
   }
   let ar52610DriveCasing=null;
+  let arJ240RouteCasingSignature='';
   // V52.9.138 — largeur du ruban fondée sur le gabarit réel du véhicule, pas sur un nombre fixe de pixels.
   // Marge visuelle : +5 %. La conversion mètres -> pixels dépend du zoom et de la latitude.
   function arRouteVehicleWidthMeters(){
@@ -6494,8 +6518,8 @@ body.ar-mobile-nav-open #map{
         if(!l||!l.setStyle)return;
         const isHalo=(l.options?.className||'').includes('ar-driving-route-halo');
         l.setStyle(isHalo
-          ? {weight:Math.max(3,weight+2),color:'#FFFFFF',opacity:.96,lineCap:'round',lineJoin:'round'}
-          : {weight,color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
+          ? {weight:Math.max(3,weight+2),color:'#FFFFFF',opacity:.95,lineCap:'round',lineJoin:'round'}
+          : {weight:Math.min(48,weight+1),color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
       });
     }catch(_){}
   }
@@ -6506,17 +6530,23 @@ body.ar-mobile-nav-open #map{
   map.on('zoomend moveend',()=>{try{arApplyMetricRouteWidth();arBringDrivingRouteToFront()}catch(_){}});
   function syncDrivingRouteCasing(pts){
     try{
+      if(!pts||pts.length<2){if(ar52610DriveCasing){map.removeLayer(ar52610DriveCasing);ar52610DriveCasing=null;}arJ240RouteCasingSignature='';return;}
+      // J240 — le tracé n'est plus détruit/recréé à chaque tick caméra.
+      // Signature légère : géométrie + nombre de points. Le layer reste peint tant que le trajet ne change pas.
+      const first=pts[0],last=pts[pts.length-1];
+      const signature=`${pts.length}:${Number(first.lat).toFixed(5)},${Number(first.lng).toFixed(5)}:${Number(last.lat).toFixed(5)},${Number(last.lng).toFixed(5)}`;
+      if(ar52610DriveCasing && signature===arJ240RouteCasingSignature){arApplyMetricRouteWidth();arBringDrivingRouteToFront();return;}
       if(ar52610DriveCasing){map.removeLayer(ar52610DriveCasing);ar52610DriveCasing=null;}
-      if(!pts||pts.length<2)return;
+      arJ240RouteCasingSignature=signature;
       // V52.9.231 — mode test terrain réalisable : le tracé reste l'autorité visuelle.
-      // Le cœur bleu conserve la largeur métrique véhicule +5 %. Un fin liseré BLANC
-      // non métrique et non interactif assure le contraste : jamais de halo gris/bleu épais.
+      // J240 — cœur bleu élargi + liseré BLANC aminci à largeur totale constante. Aucun halo gris/sombre grossier.
+      // Le liseré sert uniquement au contraste sur satellite et reste volontairement discret.
       const weight=arRouteMetricWeightPx();
-      const halo=L.polyline(pts,{className:'ar-driving-route-halo',color:'#FFFFFF',weight:Math.max(3,weight+2),opacity:.96,lineCap:'round',lineJoin:'round',interactive:false});
-      const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight,opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
+      const halo=L.polyline(pts,{className:'ar-driving-route-halo',color:'#FFFFFF',weight:Math.max(3,weight+2),opacity:.95,lineCap:'round',lineJoin:'round',interactive:false});
+      const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+1),opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
       ar52610DriveCasing=L.layerGroup([halo,guide]).addTo(map);
       arBringDrivingRouteToFront();
-      if(demoMode){halo.setStyle({opacity:0});guide.setStyle({opacity:0});}
+      // J240 — même tracé visuel en simulation et en conduite réelle.
       if(demoLayer&&demoLayer.setStyle)demoLayer.setStyle({opacity:0});
       if(routeLayer&&routeLayer.setStyle)routeLayer.setStyle({opacity:0});
     }catch(_){}
@@ -6529,6 +6559,7 @@ body.ar-mobile-nav-open #map{
   document.body.classList.add('ar-e7-camera-driver');
   const arE7CameraToggle=document.getElementById('ar-e7-camera-toggle');
   if(arE7CameraToggle){arE7CameraToggle.hidden=true;arE7CameraToggle.setAttribute('aria-hidden','true');}
+  window.AllRoadsDrivingRecenter=()=>{try{focusDrivingRoute();return true}catch(_){return false}};
   window.AllRoadsDriveCamera={
     set:()=>{},
     toggle:()=>{},
@@ -6580,7 +6611,10 @@ body.ar-mobile-nav-open #map{
 
       const baseZoom=map.getZoom();
       const snap=snapToRoute(rawPos,pts,baseZoom);
-      const i=snap.index,anchor=snap.pos;
+      const i=snap.index;
+      // J239 — le véhicule visuel représente la position GPS réelle, jamais une projection forcée sur la route.
+      // La route la plus proche ne sert qu'à déterminer l'axe/horizon de caméra.
+      const anchor=demoMode ? snap.pos : L.latLng(rawPos.lat,rawPos.lng);
       const size=map.getSize();
 
       // V52.9.120 — référentiel géométrique unique de la caméra.
@@ -7470,7 +7504,7 @@ html.ar-vv-low body.ar52-vehicle-open .ar52-card{min-height:40px!important}
  document.body.classList.toggle('ar-pwa-installed',installed);
  if('serviceWorker' in navigator){
    /* /app/sw.js?v=52.9.235 (référence historique J235) */
-   navigator.serviceWorker.register('/app/sw.js?v=52.9.238',{scope:'/app/',updateViaCache:'none'})
+   navigator.serviceWorker.register('/app/sw.js?v=52.9.240-final',{scope:'/app/',updateViaCache:'none'})
     .then(reg=>reg.update()).catch(e=>console.warn('AllRoads SW',e));
  }
 window.addEventListener('beforeinstallprompt',e=>{window.__allroadsInstallPrompt=e; console.info('AllRoads PWA installable');});
@@ -9348,6 +9382,12 @@ html.jepalys-flat input[data-vs207-keyboard="1"]{caret-color:transparent!importa
 #vs207-kb-screen{min-height:66px;border:2px solid rgba(86,234,203,.8);border-radius:16px;background:rgba(255,255,255,.12);padding:10px 14px;display:flex;align-items:center;box-shadow:0 10px 28px rgba(0,0,0,.25)}
 #vs207-kb-value{width:100%;white-space:pre-wrap;overflow-wrap:anywhere;font:900 clamp(18px,4.2vw,30px)/1.15 system-ui;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 #vs207-kb-value.empty{opacity:.55;font-weight:750}
+#vs240-kb-suggestions{display:flex;gap:6px;min-height:34px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;align-items:center;padding:1px 0}
+#vs240-kb-suggestions:empty{display:none}
+#vs240-kb-suggestions::-webkit-scrollbar{display:none}
+.vs240-suggestion{flex:0 0 auto;max-width:min(72vw,330px);min-height:32px;padding:6px 10px;border:1px solid rgba(123,240,202,.38);border-radius:999px;background:rgba(6,54,76,.88);color:#fff;font:850 10px/1.1 system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 9px rgba(0,0,0,.14)}
+.vs240-suggestion.place{background:rgba(27,157,120,.30);border-color:rgba(123,240,202,.70)}
+.vs240-suggestion small{opacity:.72;font-size:8px;margin-left:4px}
 #vs207-kb-keys{display:grid;gap:7px;flex:1;align-content:center}
 .vs207-kb-row{display:flex;gap:6px;justify-content:center;min-width:0}
 .vs207-key{flex:1 1 0;min-width:0;min-height:48px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.13);color:#fff;font:900 clamp(16px,3.6vw,24px)/1 system-ui;box-shadow:0 5px 12px rgba(0,0,0,.16)}
@@ -9361,6 +9401,7 @@ html.jepalys-flat input[data-vs207-keyboard="1"]{caret-color:transparent!importa
  #vs207-keyboard{padding:7px 10px;gap:7px}
  #vs207-kb-head{min-height:38px}#vs207-kb-title{font-size:15px}#vs207-kb-caption{font-size:8px}#vs207-kb-close{width:38px;height:38px;font-size:19px}
  #vs207-kb-screen{min-height:48px;padding:6px 12px;border-radius:13px}#vs207-kb-value{font-size:18px}
+ #vs240-kb-suggestions{min-height:28px;gap:4px}.vs240-suggestion{min-height:27px;padding:4px 8px;font-size:9px;max-width:240px}
  #vs207-kb-keys{gap:5px}.vs207-kb-row{gap:5px}.vs207-key{min-height:36px;border-radius:9px;font-size:17px}
  #vs207-kb-actions{gap:6px}#vs207-kb-clear,#vs207-kb-validate{min-height:40px;border-radius:10px;font-size:13px}
 }
@@ -9391,12 +9432,13 @@ html.jepalys-flat #allroads-mobile-home .ar-profile.vs213-test-internal.ar-selec
  .vs214-route-choice{padding:7px 6px}.vs214-route-choice strong{font-size:9px}.vs214-route-choice .metrics{font-size:8px}.vs214-route-choice .cost{font-size:8px}.vs214-route-choice small{display:none}
 }
 @media (orientation:landscape) and (max-height:620px){
- #vs207-keyboard.destination-mode{display:grid;grid-template-columns:clamp(360px,43vw,420px) minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:12px;row-gap:6px;overflow:hidden}
+ #vs207-keyboard.destination-mode{display:grid;grid-template-columns:clamp(360px,43vw,420px) minmax(0,1fr);grid-template-rows:auto auto auto 1fr auto;column-gap:12px;row-gap:5px;overflow:hidden}
  #vs207-keyboard.destination-mode #vs207-kb-head{grid-column:1/-1;grid-row:1}
  #vs207-keyboard.destination-mode #vs207-kb-screen{grid-column:1;grid-row:2}
- #vs207-keyboard.destination-mode #vs207-kb-keys{grid-column:1;grid-row:3;min-width:0}
- #vs207-keyboard.destination-mode #vs207-kb-actions{grid-column:1;grid-row:4}
- #vs207-keyboard.destination-mode #vs214-kb-route-panel{grid-column:2;grid-row:2/5;max-height:none;padding:7px;gap:5px}
+ #vs207-keyboard.destination-mode #vs240-kb-suggestions{grid-column:1;grid-row:3;min-width:0}
+ #vs207-keyboard.destination-mode #vs207-kb-keys{grid-column:1;grid-row:4;min-width:0}
+ #vs207-keyboard.destination-mode #vs207-kb-actions{grid-column:1;grid-row:5}
+ #vs207-keyboard.destination-mode #vs214-kb-route-panel{grid-column:2;grid-row:2/6;max-height:none;padding:7px;gap:5px}
  #vs214-kb-prefs{display:grid;grid-template-columns:1fr;gap:4px}
  #vs214-kb-prefs button{padding:5px 6px;font-size:8px}
  #vs214-kb-route-list{gap:4px}.vs214-route-choice{padding:6px 7px;border-radius:9px}.vs214-route-choice strong{font-size:9px;margin-bottom:2px}.vs214-route-choice .metrics{font-size:8px}.vs214-route-choice .cost{font-size:8px;margin-top:2px}.vs214-route-choice small{font-size:6px;margin-top:2px}
@@ -9436,17 +9478,26 @@ function reverseTour(t){const e=tourEndpoints(t);return {...t,from:e.to||'',to:e
 let activeEdit=null;
 let kbBuffer='',kbOriginal='',kbReplaceOnFirst=false,kbShift=true,kbMode='text';
 let kbRouteSelection=null,kbRouteContext=null;
+let kbSuggestTimer=null,kbSuggestAbort=null,kbSuggestSeq=0;
+const KB_WORDS=['aire','autoroute','avenue','boulevard','camping','camping-car','centre','commercial','commerce','destination','direction','école','ferry','gare','gauche','hôpital','hôtel','mairie','magasin','parking','péage','place','restaurant','route','rue','station','station-service','supermarché','travaux','vidange'];
 function syncPanelAnchor(){const row=by('vsflat-vehicle-row'),actions=by('vsflat-home-actions');if(!row||!actions)return;const h=row.getBoundingClientRect().height;if(h>0)actions.style.setProperty('--vs-panel-anchor',`${Math.round(h/2)}px`)}
 function syncEditViewport(){}
 function editCaption(el){return el?.getAttribute('aria-label')||el?.closest('label')?.childNodes?.[0]?.textContent?.trim()||'Saisie JEPALYS'}
 function keyboardMode(el){return (el?.dataset?.vs207Inputmode||el?.getAttribute('inputmode'))==='decimal'?'decimal':'text'}
-function ensureKeyboard(){let k=by('vs207-keyboard');if(k)return k;k=document.createElement('section');k.id='vs207-keyboard';k.setAttribute('role','dialog');k.setAttribute('aria-modal','true');k.innerHTML=`<div id="vs207-kb-head"><div id="vs207-kb-brand"><img id="vs207-kb-logo" src="/app/assets/jemipal-logo-160.webp" alt=""><div><strong id="vs207-kb-title">Saisie JEPALYS</strong><span id="vs207-kb-caption"></span></div></div><button id="vs207-kb-close" type="button" aria-label="Fermer">×</button></div><div id="vs207-kb-screen"><div id="vs207-kb-value"></div></div><aside id="vs214-kb-route-panel"><div><div class="vs214-title">Préférences trajet</div><div class="vs214-sub">Choisissez vos règles puis comparez les 3 propositions.</div></div><div id="vs214-kb-prefs"><button type="button" data-pref="avoid_autoroutes">Sans autoroute</button><button type="button" data-pref="avoid_peages">Sans péage</button><button type="button" data-pref="avoid_ferries">Sans ferry</button></div><div id="vs214-kb-route-status">Saisissez votre destination puis validez.</div><div id="vs214-kb-route-list"></div><div id="vs214-kb-route-note"></div></aside><div id="vs207-kb-keys"></div><div id="vs207-kb-actions"><button id="vs207-kb-clear" type="button">Effacer</button><button id="vs207-kb-validate" type="button">Valider</button></div>`;const host=by('allroads-mobile-home')||document.body;host.appendChild(k);by('vs207-kb-close').onclick=()=>closeKeyboard(false);by('vs207-kb-clear').onclick=()=>{kbBuffer='';kbReplaceOnFirst=false;kbRouteSelection=null;renderKeyboardValue();resetKeyboardRoutePanel()};by('vs207-kb-validate').onclick=()=>confirmActiveEdit();k.querySelectorAll('#vs214-kb-prefs [data-pref]').forEach(b=>b.onclick=()=>{const p=routePrefs();p[b.dataset.pref]=!p[b.dataset.pref];saveRoutePrefs(p);kbRouteSelection=null;renderKeyboardRoutePrefs();if(activeEdit?.id==='vsflat-to'&&kbBuffer.trim())compareDestinationInKeyboard()});return k}
-function renderKeyboardValue(){const v=by('vs207-kb-value');if(!v)return;v.textContent=kbBuffer||'Saisissez votre texte…';v.classList.toggle('empty',!kbBuffer)}
+function ensureKeyboard(){let k=by('vs207-keyboard');if(k)return k;k=document.createElement('section');k.id='vs207-keyboard';k.setAttribute('role','dialog');k.setAttribute('aria-modal','true');k.innerHTML=`<div id="vs207-kb-head"><div id="vs207-kb-brand"><img id="vs207-kb-logo" src="/app/assets/jemipal-logo-160.webp" alt=""><div><strong id="vs207-kb-title">Saisie JEPALYS</strong><span id="vs207-kb-caption"></span></div></div><button id="vs207-kb-close" type="button" aria-label="Fermer">×</button></div><div id="vs207-kb-screen"><div id="vs207-kb-value"></div></div><div id="vs240-kb-suggestions" role="listbox" aria-label="Suggestions"></div><aside id="vs214-kb-route-panel"><div><div class="vs214-title">Préférences trajet</div><div class="vs214-sub">Choisissez vos règles puis comparez les 3 propositions.</div></div><div id="vs214-kb-prefs"><button type="button" data-pref="avoid_autoroutes">Sans autoroute</button><button type="button" data-pref="avoid_peages">Sans péage</button><button type="button" data-pref="avoid_ferries">Sans ferry</button></div><div id="vs214-kb-route-status">Saisissez votre destination puis validez.</div><div id="vs214-kb-route-list"></div><div id="vs214-kb-route-note"></div></aside><div id="vs207-kb-keys"></div><div id="vs207-kb-actions"><button id="vs207-kb-clear" type="button">Effacer</button><button id="vs207-kb-validate" type="button">Valider</button></div>`;const host=by('allroads-mobile-home')||document.body;host.appendChild(k);by('vs207-kb-close').onclick=()=>closeKeyboard(false);by('vs207-kb-clear').onclick=()=>{kbBuffer='';kbReplaceOnFirst=false;kbRouteSelection=null;if(activeEdit){delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon}renderKeyboardValue();resetKeyboardRoutePanel()};by('vs207-kb-validate').onclick=()=>confirmActiveEdit();k.querySelectorAll('#vs214-kb-prefs [data-pref]').forEach(b=>b.onclick=()=>{const p=routePrefs();p[b.dataset.pref]=!p[b.dataset.pref];saveRoutePrefs(p);kbRouteSelection=null;renderKeyboardRoutePrefs();if(activeEdit?.id==='vsflat-to'&&kbBuffer.trim())compareDestinationInKeyboard()});return k}
+function kbNorm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function kbLearn(text){const words=String(text||'').match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]{2,}/g)||[];if(!words.length)return;let a=[];try{a=JSON.parse(localStorage.getItem('jepalys-kb-learned-v240')||'[]')}catch(_){}for(const w of words){if(!a.some(x=>kbNorm(x)===kbNorm(w)))a.unshift(w)}localStorage.setItem('jepalys-kb-learned-v240',JSON.stringify(a.slice(0,80)))}
+function kbReplaceCurrentWord(word){const m=kbBuffer.match(/^(.*?)([^\s,;]*)$/);const prefix=m?m[1]:'';kbBuffer=prefix+word+' ';kbReplaceOnFirst=false;if(activeEdit){delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon}kbLearn(word);renderKeyboardValue();renderKeyboardKeys()}
+function kbChoosePlace(x){const label=String(x?.adresse||x?.nom||'').trim();if(!label)return;kbBuffer=label;kbReplaceOnFirst=false;if(activeEdit&&Number.isFinite(Number(x.latitude))&&Number.isFinite(Number(x.longitude))){activeEdit.dataset.poiLat=String(x.latitude);activeEdit.dataset.poiLon=String(x.longitude)}kbLearn(x?.nom||label);renderKeyboardValue();renderKeyboardKeys()}
+function renderKbSuggestions(items=[]){const host=by('vs240-kb-suggestions');if(!host)return;host.innerHTML='';items.slice(0,6).forEach(item=>{const b=document.createElement('button');b.type='button';b.className='vs240-suggestion'+(item.kind==='place'?' place':'');b.setAttribute('role','option');b.title=item.label;b.innerHTML=esc(item.label)+(item.meta?`<small>${esc(item.meta)}</small>`:'');b.onclick=()=>item.kind==='place'?kbChoosePlace(item.data):kbReplaceCurrentWord(item.value);host.appendChild(b)})}
+function localKbSuggestions(){if(kbMode!=='text')return[];const m=kbBuffer.match(/([^\s,;]*)$/),raw=(m?.[1]||'').trim(),q=kbNorm(raw);if(q.length<1)return[];let learned=[];try{learned=JSON.parse(localStorage.getItem('jepalys-kb-learned-v240')||'[]')}catch(_){}const src=[...learned,...KB_WORDS],seen=new Set(),out=[];for(const w of src){const n=kbNorm(w);if(n.startsWith(q)&&n!==q&&!seen.has(n)){seen.add(n);out.push({kind:'word',label:w,value:w});if(out.length>=3)break}}return out}
+function scheduleKeyboardSuggestions(){clearTimeout(kbSuggestTimer);if(kbSuggestAbort){try{kbSuggestAbort.abort()}catch(_){}kbSuggestAbort=null}const local=localKbSuggestions();renderKbSuggestions(local);if(activeEdit?.id!=='vsflat-to'||kbMode!=='text'||kbBuffer.trim().length<3)return;const seq=++kbSuggestSeq;kbSuggestTimer=setTimeout(async()=>{const q=kbBuffer.trim();if(q.length<3||activeEdit?.id!=='vsflat-to')return;const ctrl=new AbortController();kbSuggestAbort=ctrl;const qs=new URLSearchParams({q});try{const f=window.__allroadsReliableGpsFix;if(f&&Date.now()-Number(f.at||0)<15000&&Number.isFinite(Number(f.lat))&&Number.isFinite(Number(f.lng))){qs.set('lat',f.lat);qs.set('lon',f.lng)}}catch(_){}try{const r=await fetch('/poi/search?'+qs.toString(),{credentials:'same-origin',signal:ctrl.signal});if(!r.ok)return;const data=await r.json();if(seq!==kbSuggestSeq||q!==kbBuffer.trim())return;const remote=(Array.isArray(data)?data:[]).slice(0,4).map(x=>({kind:'place',label:x.nom||x.adresse||q,meta:x.distance_km!=null?`${Number(x.distance_km).toFixed(1).replace('.',',')} km`:'lieu',data:x}));renderKbSuggestions([...local,...remote])}catch(e){if(e?.name!=='AbortError')console.debug('JEPALYS suggestions:',e)}} ,320)}
+function renderKeyboardValue(){const v=by('vs207-kb-value');if(!v)return;v.textContent=kbBuffer||'Saisissez votre texte…';v.classList.toggle('empty',!kbBuffer);scheduleKeyboardSuggestions()}
 function keyboardRows(){if(kbMode==='decimal')return [['1','2','3'],['4','5','6'],['7','8','9'],['0',',','.','⌫']];return [['1','2','3','4','5','6','7','8','9','0'],['A','Z','E','R','T','Y','U','I','O','P'],['Q','S','D','F','G','H','J','K','L','M'],['⇧','W','X','C','V','B','N',"'",'-','⌫'],['é','è','à','ç','ù','ESPACE']];}
 function renderKeyboardKeys(){const host=by('vs207-kb-keys');if(!host)return;host.innerHTML='';keyboardRows().forEach(row=>{const r=document.createElement('div');r.className='vs207-kb-row';row.forEach(key=>{const b=document.createElement('button');b.type='button';b.className='vs207-key';if(['⇧','⌫'].includes(key))b.classList.add('special');if(key==='ESPACE'){b.classList.add('space');b.textContent='Espace'}else b.textContent=key;b.dataset.key=key;b.onclick=()=>pressKeyboardKey(key);r.appendChild(b)});host.appendChild(r)})}
-function pressKeyboardKey(key){if(!activeEdit)return;if(key==='⌫'){if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}else kbBuffer=[...kbBuffer].slice(0,-1).join('');renderKeyboardValue();return}if(key==='⇧'){kbShift=!kbShift;renderKeyboardKeys();return}if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}let ch=key;if(key==='ESPACE')ch=' ';else if(/^[A-Z]$/.test(key))ch=kbShift?key:key.toLowerCase();kbBuffer+=ch;if(/^[A-Z]$/.test(key)&&kbShift)kbShift=false;renderKeyboardValue();renderKeyboardKeys()}
+function pressKeyboardKey(key){if(!activeEdit)return;if(key==='⌫'){delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon;if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}else kbBuffer=[...kbBuffer].slice(0,-1).join('');renderKeyboardValue();return}if(key==='⇧'){kbShift=!kbShift;renderKeyboardKeys();return}if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon;let ch=key;if(key==='ESPACE')ch=' ';else if(/^[A-Z]$/.test(key))ch=kbShift?key:key.toLowerCase();kbBuffer+=ch;if(/^[A-Z]$/.test(key)&&kbShift)kbShift=false;renderKeyboardValue();renderKeyboardKeys()}
 function beginEdit(el,opts={}){if(!el)return;if(activeEdit&&activeEdit!==el)closeKeyboard(true);activeEdit=el;kbOriginal=String(el.value||'');kbBuffer=opts.clear===true?'':kbOriginal;kbReplaceOnFirst=opts.select===true&&!opts.clear;kbShift=true;kbMode=keyboardMode(el);kbRouteSelection=null;kbRouteContext=null;if(el.id==='vsflat-to'){if(activeTour())setActiveTour(null,false);const f=by('vsflat-from');if(f)f.value='Ma position';const st=by('vsflat-route-status');if(st)st.textContent='Départ : Ma position · saisissez la nouvelle destination.';refresh();if(!opts.preserve){kbBuffer='';kbReplaceOnFirst=false}}const k=ensureKeyboard();k.classList.toggle('destination-mode',el.id==='vsflat-to');by('vs207-kb-title').textContent='Saisie JEPALYS';by('vs207-kb-caption').textContent=editCaption(el);renderKeyboardValue();renderKeyboardKeys();resetKeyboardRoutePanel();renderKeyboardRoutePrefs();k.classList.add('open');document.body.classList.add('vs207-keyboard-open')}
-function closeKeyboard(commit=false){const el=activeEdit;if(el&&commit){el.value=kbBuffer;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}else if(el){el.value=kbOriginal}const k=by('vs207-keyboard');k?.classList.remove('open','destination-mode');document.body.classList.remove('vs207-keyboard-open');activeEdit=null;kbOriginal='';kbBuffer='';kbReplaceOnFirst=false;kbRouteSelection=null;kbRouteContext=null}
+function closeKeyboard(commit=false){const el=activeEdit;clearTimeout(kbSuggestTimer);if(kbSuggestAbort){try{kbSuggestAbort.abort()}catch(_){}kbSuggestAbort=null}if(el&&commit){kbLearn(kbBuffer);el.value=kbBuffer;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}else if(el){el.value=kbOriginal}const k=by('vs207-keyboard');k?.classList.remove('open','destination-mode');document.body.classList.remove('vs207-keyboard-open');renderKbSuggestions([]);activeEdit=null;kbOriginal='';kbBuffer='';kbReplaceOnFirst=false;kbRouteSelection=null;kbRouteContext=null}
 function endEdit(el=activeEdit,blur=true){if(!el)return;closeKeyboard(true)}
 function confirmActiveEdit(){const el=activeEdit;if(!el)return;if(el.id==='vsflat-to'){el.value=kbBuffer;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));const st=by('vsflat-route-status');if(st)st.textContent=kbBuffer.trim()?`Destination : ${kbBuffer.trim()}`:'Indiquez une destination.';if(!kbBuffer.trim()){by('vs214-kb-route-status').textContent='Indiquez une destination.';return}if(kbRouteSelection){launchKeyboardRoute();return}compareDestinationInKeyboard();return}const committed=el;closeKeyboard(true)}
 function bindEditable(scope=document){scope.querySelectorAll?.('input').forEach(el=>{
@@ -9460,11 +9511,11 @@ function bindEditable(scope=document){scope.querySelectorAll?.('input').forEach(
 function openBoundEditable(el){if(!el?.matches?.('input[data-vs207-keyboard="1"]'))return false;const clear=el.id==='vsflat-to';beginEdit(el,{clear,select:!clear});return true}
 function editableFromTarget(target){const direct=target?.closest?.('input[data-vs207-keyboard="1"]');if(direct)return direct;const label=target?.closest?.('label');return label?.querySelector?.('input[data-vs207-keyboard="1"]')||null}
 function installKeyboardDelegation(){if(root.dataset.vs210KeyboardDelegation)return;root.dataset.vs210KeyboardDelegation='1';const home=by('allroads-mobile-home');if(!home)return;home.addEventListener('click',e=>{if(e.target?.closest?.('#vs207-keyboard'))return;const el=editableFromTarget(e.target);if(!el)return;e.preventDefault();e.stopPropagation();openBoundEditable(el)},true);home.addEventListener('keydown',e=>{const el=editableFromTarget(e.target);if(!el||!['Enter',' '].includes(e.key))return;e.preventDefault();e.stopPropagation();openBoundEditable(el)},true)}
-document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.classList.contains('open'))return;if(e.key==='Escape'){e.preventDefault();closeKeyboard(false);return}if(e.key==='Enter'){e.preventDefault();confirmActiveEdit();return}if(e.key==='Backspace'){e.preventDefault();pressKeyboardKey('⌫');return}if(e.key.length===1){e.preventDefault();if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}kbBuffer+=e.key;renderKeyboardValue()}});
+document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.classList.contains('open'))return;if(e.key==='Escape'){e.preventDefault();closeKeyboard(false);return}if(e.key==='Enter'){e.preventDefault();confirmActiveEdit();return}if(e.key==='Backspace'){e.preventDefault();pressKeyboardKey('⌫');return}if(e.key.length===1){e.preventDefault();if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}if(activeEdit){delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon}kbBuffer+=e.key;renderKeyboardValue()}});
 function showHome(){autoStart=false;if(activeEdit)closeKeyboard(false);closePanel();document.body.classList.remove('vsflat-route-pending','vs-driving-visible','ar-mobile-nav-open','ar52-vehicle-open');document.body.classList.add('ar-mobile-home-open');const h=by('allroads-mobile-home'),n=by('ar-mobile-nav');if(h)h.style.display='block';if(n)n.style.display='none';try{window.AllRoadsGpsRuntime?.prepare?.()}catch(_){}setTimeout(()=>{refresh();window.dispatchEvent(new Event('resize'))},30)}
 function inject(){
  const home=by('allroads-mobile-home'), selected=$('#allroads-mobile-home .ar-home-selected-card');if(!home||!selected)return;
- if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J238 · Virage Serré · WP35 · Accès J237';home.querySelector('.ar-home-hero')?.appendChild(v)}
+ if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J240 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
  if(!by('vsflat-tagline')){const t=document.createElement('span');t.id='vsflat-tagline';t.textContent='Explorer aujourd’hui, préserver demain.';home.querySelector('.ar-home-hero')?.appendChild(t)}
  if(!by('vsflat-home-actions')){const w=document.createElement('section');w.id='vsflat-home-actions';w.innerHTML=`<div id="vsflat-vehicle-row"><button class="vsflat-action" id="vsflat-vehicle-toggle" type="button" aria-expanded="false"><span><strong>ID véhicule</strong><small>Ajouter · caractéristiques · sauvegarder</small></span><b>⌄</b></button><button class="vsflat-action" id="vsflat-tour-toggle" type="button" aria-expanded="false"><span><strong>Mes tournées</strong><small>Créer · charger · gérer</small></span><b>›</b></button></div><section id="vsflat-panel"></section><section id="vsflat-route-card"><div class="vsflat-route-title"><strong>Itinéraire</strong><span>directement depuis l’accueil</span></div><div class="vsflat-route-fields"><label><span>●</span><input id="vsflat-from" value="Ma position" aria-label="Départ"></label><label><span>◆</span><input id="vsflat-to" placeholder="Ma destination" aria-label="Destination"></label></div><button id="vsflat-route-validate" type="button">Valider</button><div class="vsflat-route-buttons"><button id="vsflat-route-main" class="vsflat-route-main" type="button">Démarrer</button><button id="vsflat-route-demo" class="vsflat-route-demo" type="button">Démo sans GPS</button></div><div id="vsflat-route-status">Indiquez votre destination puis comparez les itinéraires.</div></section>`;selected.insertAdjacentElement('afterend',w)}
  bind();refresh();
@@ -9472,7 +9523,7 @@ function inject(){
 function bind(){
  const home=by('allroads-mobile-home');if(home&&!home.dataset.vsflatProfile){home.dataset.vsflatProfile='1';home.addEventListener('click',e=>{const b=e.target.closest('.ar-profile');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(b.disabled||b.getAttribute('aria-disabled')==='true'||b.classList.contains('is-locked'))return;$$('#allroads-mobile-home .ar-profile').forEach(x=>{x.classList.toggle('ar-selected',x===b);x.setAttribute('aria-current',x===b?'true':'false')});const p=(b.dataset.profile||'BUS').toUpperCase();localStorage.setItem('allroads-start-profile',p);const ps=by('profil');if(ps){ps.value=p.toLowerCase();ps.dispatchEvent(new Event('change',{bubbles:true}))}closePanel();setTimeout(refresh,0)},true)}
  const vb=by('vsflat-vehicle-toggle'),tb=by('vsflat-tour-toggle');if(vb&&!vb.dataset.bound){vb.dataset.bound='1';vb.onclick=()=>togglePanel('vehicle')}if(tb&&!tb.dataset.bound){tb.dataset.bound='1';tb.onclick=()=>togglePanel('tours')}
- const to=by('vsflat-to');if(to&&!to.dataset.bound){to.dataset.bound='1';to.addEventListener('input',()=>{if(activeTour())setActiveTour(null,false)})}
+ const to=by('vsflat-to');if(to&&!to.dataset.bound){to.dataset.bound='1';to.addEventListener('input',e=>{if(!e?.detail?.j240Poi){delete to.dataset.poiLat;delete to.dataset.poiLon}if(activeTour())setActiveTour(null,false)})}
  bindEditable(home||document);
  const main=by('vsflat-route-main');if(main&&!main.dataset.bound){main.dataset.bound='1';main.onclick=directRoute}
  const demo=by('vsflat-route-demo');if(demo&&!demo.dataset.bound){demo.dataset.bound='1';demo.onclick=directDemo}
@@ -9559,50 +9610,116 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 window.JEPALYSFlat={refresh,vehicleMenu,tourMenu,closePanel,showHome};
 })();
 </script>
-<style id="jepalys-j239-terrain-authority">
-/* J239 — autorité finale WP35/PWA, placée après toutes les règles historiques. */
-#ar-mobile-nav[data-state="driving"] .ar51-center-map,
-#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden .ar51-center-map{
-  grid-template-columns:40px!important;grid-auto-rows:42px!important;
-  width:40px!important;height:126px!important;max-height:126px!important;overflow:visible!important;
+<style id="jepalys-j239-final-authority">
+/* J239 — autorité finale WP35/PWA. Placée après les styles historiques pour gagner la cascade. */
+@media (orientation:portrait) and (max-width:700px){
+ html.jepalys-flat #allroads-mobile-home .ar-home-hero{height:78px!important;min-height:78px!important;max-height:78px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translateX(7px)!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,106px)!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:106px!important;min-height:106px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-shell{padding:6px 8px max(16px,env(safe-area-inset-bottom))!important;gap:6px!important}
 }
-#ar-mobile-nav[data-state="driving"] .ar51-center-map button{
-  width:40px!important;height:42px!important;min-height:42px!important;max-height:42px!important;
-  display:grid!important;place-items:center!important;line-height:1!important;
+@media (orientation:landscape) and (max-height:620px){
+ html.jepalys-flat #allroads-mobile-home .ar-home-shell{grid-template-rows:66px minmax(0,1fr)!important;gap:5px!important;padding:5px 9px max(7px,env(safe-area-inset-bottom))!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-hero{height:66px!important;min-height:66px!important;max-height:66px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,80px)!important;gap:4px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:80px!important;min-height:80px!important}
+ html.jepalys-flat #vsflat-home-actions{align-self:start!important;margin-top:88px!important;gap:4px!important}
+ html.jepalys-flat #vsflat-route-card{padding:5px 8px!important}
+ html.jepalys-flat .vsflat-route-buttons{margin-top:4px!important}
+ html.jepalys-flat .vsflat-route-buttons button{min-height:29px!important}
 }
-#ar-mobile-nav[data-state="driving"] .ar51-maneuver{
-  height:78px!important;min-height:78px!important;padding:7px 10px!important;align-items:center!important;
-  grid-template-columns:48px minmax(0,1fr) 48px!important;
-}
-#ar-mobile-nav[data-state="driving"] .ar51-step{align-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:0!important;overflow:hidden!important}
-#ar-mobile-nav[data-state="driving"] .ar51-step strong{font-size:25px!important;line-height:.98!important;margin:0!important}
-#ar-mobile-nav[data-state="driving"] .ar51-step span{font-size:12px!important;line-height:1.12!important;margin:4px 0 0!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden!important}
-#ar-mobile-nav[data-state="driving"] .ar51-limit{align-self:center!important;justify-self:end!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}
-/* Le point GPS reste visible en J239 comme témoin de vérité pendant le recalage véhicule. */
-#map .ar-j238-gps-fix-anchor{opacity:1!important;fill-opacity:1!important;stroke-opacity:1!important}
+/* Conduite : GPS et profil sont deux pastilles séparées, jamais superposées. */
+#ar-mobile-nav[data-state="driving"] .ar-e3-gps-signal{right:122px!important;width:58px!important;max-width:58px!important;padding:0 5px!important}
+#ar-mobile-nav[data-state="driving"] .ar51-profile-chip{right:48px!important;width:66px!important;max-width:66px!important;padding:0 6px!important;overflow:hidden!important;white-space:nowrap!important}
+#ar-mobile-nav[data-state="driving"] .ar51-profile-chip #ar51-profile-name{overflow:hidden!important;text-overflow:ellipsis!important}
+/* Le point GPS reste visible en J239 uniquement comme témoin de diagnostic jusqu'à validation de la superposition véhicule/GPS. */
+#map .ar-j238-gps-fix-anchor{opacity:1!important;fill-opacity:1!important;stroke-opacity:1!important;pointer-events:none!important}
 </style>
-<script id="jepalys-j239-french-guidance">
-(function(){
-  const rules=[
-    [/\bturn right\b/gi,'tournez à droite'],[/\bturn left\b/gi,'tournez à gauche'],
-    [/\bslight right\b/gi,'prenez légèrement à droite'],[/\bslight left\b/gi,'prenez légèrement à gauche'],
-    [/\bkeep right\b/gi,'restez à droite'],[/\bkeep left\b/gi,'restez à gauche'],
-    [/\bcontinue straight\b/gi,'continuez tout droit'],[/\bcontinue\b/gi,'continuez'],
-    [/\bat the roundabout\b/gi,'au rond-point'],[/\broundabout\b/gi,'rond-point'],
-    [/\btake the ([0-9]+)(?:st|nd|rd|th) exit\b/gi,'prenez la sortie $1'],
-    [/\bmake a u-turn\b/gi,'faites demi-tour'],[/\bu-turn\b/gi,'demi-tour'],
-    [/\byou have arrived(?: at your destination)?\b/gi,'vous êtes arrivé à destination'],
-    [/\bdestination is on the right\b/gi,'destination à droite'],[/\bdestination is on the left\b/gi,'destination à gauche']
-  ];
-  window.JEPALYSFrenchInstruction=function(v){let t=String(v||'').trim();for(const [re,fr] of rules)t=t.replace(re,fr);return t||'Continuez sur l’itinéraire'};
-  const normalize=()=>{
-    for(const id of ['ar51-instruction','map-instruction-text','driver-callout-main','driver-next','map-next-step-text','visual-guide-instruction']){
-      const el=document.getElementById(id);if(el&&/[A-Za-z]/.test(el.textContent||'')){const before=el.textContent,after=window.JEPALYSFrenchInstruction(before);if(after!==before)el.textContent=after;}
-    }
-  };
-  new MutationObserver(normalize).observe(document.body,{subtree:true,childList:true,characterData:true});
-  normalize();
+
+<style id="jepalys-j240-global-authority">
+/* J240 — bloc global : Accueil + Conduite + netteté + réglages sans micro-rustines. */
+html.jepalys-flat #allroads-mobile-home .ar-profile,
+html.jepalys-flat #allroads-mobile-home .ar-profile img,
+#ar-mobile-nav button,#ar-mobile-nav .ar51-stat{image-rendering:auto;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#map .leaflet-tile{image-rendering:auto;filter:none!important}
+#map .leaflet-map-pane{will-change:auto}
+@media (orientation:portrait) and (max-width:700px){
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,100px)!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:100px!important;min-height:100px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translate(7px,-4px)!important}
+}
+@media (orientation:landscape) and (max-height:620px){
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,74px)!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:74px!important;min-height:74px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translateX(5px)!important}
+ html.jepalys-flat #vsflat-home-actions{margin-top:80px!important}
+ #ar-mobile-nav[data-state="driving"] .ar-e3-gps-signal{right:132px!important;width:54px!important;max-width:54px!important;height:34px!important;min-height:34px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-profile-chip{right:54px!important;width:68px!important;max-width:68px!important;height:34px!important;min-height:34px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-maneuver{height:84px!important;min-height:84px!important;padding:8px 10px!important;grid-template-columns:40px minmax(0,1fr) 46px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-limit{width:42px!important;height:42px!important;border-width:5px!important}
+ #ar-mobile-nav[data-state="driving"] .ar525-mapviews{top:150px!important;right:8px!important;width:36px!important;max-width:36px!important;grid-template-columns:36px!important;grid-auto-rows:34px!important;border-radius:12px!important}
+ #ar-mobile-nav[data-state="driving"] .ar525-mapviews button{width:36px!important;min-width:36px!important;max-width:36px!important;height:34px!important;min-height:34px!important;max-height:34px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-center-map{top:258px!important;right:8px!important;width:36px!important;height:102px!important;max-height:102px!important;grid-template-columns:36px!important;grid-auto-rows:34px!important;border-radius:12px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-center-map button{width:36px!important;min-width:36px!important;max-width:36px!important;height:34px!important;min-height:34px!important;max-height:34px!important;font-size:19px!important}
+}
+/* Les 3 commandes de loupe sont toujours visibles et tactiles. */
+#ar-mobile-nav[data-state="driving"] .ar51-center-map{pointer-events:auto!important;height:132px!important;max-height:132px!important;grid-auto-rows:44px!important;touch-action:manipulation!important}
+#ar-mobile-nav[data-state="driving"] .ar51-center-map button{display:block!important;pointer-events:auto!important;touch-action:manipulation!important}
+#ar-mobile-nav[data-state="driving"] #ar51-locate{display:block!important;font-size:22px!important}
+@media (orientation:landscape) and (max-height:620px){
+ #ar-mobile-nav[data-state="driving"] .ar51-center-map{height:102px!important;max-height:102px!important;grid-auto-rows:34px!important}
+}
+/* Arrivée / Reste / Temps : même gabarit dans les deux orientations. */
+#ar-mobile-nav[data-state="driving"] .ar51-stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+#ar-mobile-nav[data-state="driving"] .ar51-stat{min-height:62px!important;padding:7px 8px!important;border-radius:14px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;box-sizing:border-box!important}
+#ar-mobile-nav[data-state="driving"] .ar51-stat strong{font-size:19px!important;line-height:1.05!important}
+#ar-mobile-nav[data-state="driving"] .ar51-stat span{font-size:9px!important;line-height:1.1!important;margin-top:4px!important;opacity:.78!important}
+/* Mode nuit : seulement rendu, aucune modification du routage ou du GPS. */
+body.ar-j240-night #map .leaflet-tile-pane{filter:brightness(.58) saturate(.72) contrast(1.08)}
+body.ar-j240-night #ar-mobile-nav .ar51-maneuver{background:rgba(2,12,22,.62)!important}
+body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
+/* Paramètres et recherche de lieux : fenêtres ponctuelles, jamais visibles en conduite normale. */
+.ar-j240-modal{display:none;position:fixed;inset:0;z-index:2147483500;background:rgba(2,19,30,.72);backdrop-filter:blur(8px);padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));box-sizing:border-box;align-items:center;justify-content:center}
+.ar-j240-modal.open{display:flex}.ar-j240-card{width:min(520px,100%);max-height:88dvh;overflow:auto;background:#f7fbfd;color:#17324a;border-radius:18px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.ar-j240-card h2{margin:0 0 10px;font:950 19px/1.1 system-ui}.ar-j240-card p{font:700 11px/1.35 system-ui;color:#60727f}.ar-j240-row{display:flex;gap:7px;flex-wrap:wrap}.ar-j240-row button,.ar-j240-card input{min-height:42px;border-radius:12px;border:1px solid #b8cbd5;padding:8px 10px;font:850 12px system-ui;box-sizing:border-box}.ar-j240-row button.active{background:#173f61;color:#fff;border-color:#173f61}.ar-j240-close{float:right;border:0;background:#e7eef2;border-radius:50%;width:38px;height:38px;font-size:20px}.ar-j240-searchline{display:grid;grid-template-columns:1fr auto;gap:7px}.ar-j240-searchline input{width:100%}.ar-j240-result{width:100%;border:0;border-radius:12px;background:#e9f1f5;color:#17324a;padding:9px 10px;text-align:left;margin-top:6px}.ar-j240-result strong{display:block;font-size:12px}.ar-j240-result small{display:block;font-size:9px;margin-top:3px;color:#657985}.ar-j240-poi-button{width:100%;min-height:34px;margin-top:6px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:900 10px system-ui}
+</style>
+<script id="jepalys-j240-global-js">
+(()=>{
+ 'use strict';
+ const by=id=>document.getElementById(id);
+ function toast240(msg){try{const t=by('ar51-toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}}catch(_){}}
+ // Zoom et recentrage : événements capturés pour rester accessibles malgré les anciens guards.
+ function bindMapControl(id,fn){const el=by(id);if(!el||el.dataset.j240)return;el.dataset.j240='1';el.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();try{fn()}catch(_){}},{capture:true});}
+ bindMapControl('ar51-zoom-in',()=>{map.setZoom(Math.min(map.getMaxZoom?.()??20,map.getZoom()+0.5),{animate:false});});
+ bindMapControl('ar51-zoom-out',()=>{map.setZoom(Math.max(map.getMinZoom?.()??2,map.getZoom()-0.5),{animate:false});});
+ bindMapControl('ar51-locate',async()=>{if(window.__allroadsRouteSimulationMode&&window.__allroadsRouteSimulationState){const s=window.__allroadsRouteSimulationState;map.setView([s.lat,s.lng],map.getZoom(),{animate:false});window.AllRoadsDrivingRecenter?.();return}try{const p=await window.AllRoadsGpsRuntime?.requestFreshPosition?.(8000);const lat=Number(p?.coords?.latitude),lon=Number(p?.coords?.longitude);if(Number.isFinite(lat)&&Number.isFinite(lon)){map.setView([lat,lon],map.getZoom(),{animate:false});window.AllRoadsDrivingRecenter?.();}}catch(_){toast240('Position GPS momentanément indisponible.')}});
+ // Paramètres : Auto/Jour/Nuit. Auto calcule jour/nuit depuis date + dernière position GPS ; fallback heure locale.
+ const KEY='jepalys-display-mode';
+ function solarIsDay(lat,lon,date=new Date()){
+   if(!Number.isFinite(lat)||!Number.isFinite(lon)){const h=date.getHours()+date.getMinutes()/60;return h>=7&&h<20}
+   const rad=Math.PI/180,day=Math.floor((Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate())-Date.UTC(date.getUTCFullYear(),0,0))/86400000);
+   const hour=date.getUTCHours()+date.getUTCMinutes()/60;const gamma=2*Math.PI/365*(day-1+(hour-12)/24);
+   const decl=.006918-.399912*Math.cos(gamma)+.070257*Math.sin(gamma)-.006758*Math.cos(2*gamma)+.000907*Math.sin(2*gamma)-.002697*Math.cos(3*gamma)+.00148*Math.sin(3*gamma);
+   const eq=229.18*(.000075+.001868*Math.cos(gamma)-.032077*Math.sin(gamma)-.014615*Math.cos(2*gamma)-.040849*Math.sin(2*gamma));
+   const tst=(hour*60+eq+4*lon)%1440,ha=(tst/4-180)*rad;
+   const elev=Math.asin(Math.sin(lat*rad)*Math.sin(decl)+Math.cos(lat*rad)*Math.cos(decl)*Math.cos(ha))/rad;
+   return elev>-4; // crépuscule civil anticipé : évite une bascule trop tardive.
+ }
+ let lastAutoNight=null;
+ function applyDisplay(mode,coords){let night=mode==='night';if(mode==='auto')night=!solarIsDay(Number(coords?.lat),Number(coords?.lon));if(mode==='day')night=false;if(lastAutoNight===night&&document.body.dataset.j240Display===mode)return;lastAutoNight=night;document.body.dataset.j240Display=mode;document.body.classList.toggle('ar-j240-night',night);const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=night?'#07121f':'#eef8fb';}
+ function currentMode(){return localStorage.getItem(KEY)||'auto'}
+ async function refreshAuto(){const mode=currentMode();if(mode!=='auto'){applyDisplay(mode);return}let coords=null;try{const p=await window.AllRoadsGpsRuntime?.requestFreshPosition?.(2500);coords={lat:p?.coords?.latitude,lon:p?.coords?.longitude}}catch(_){}applyDisplay('auto',coords)}
+ function ensureSettings(){if(by('ar-j240-settings'))return;const m=document.createElement('section');m.id='ar-j240-settings';m.className='ar-j240-modal';m.innerHTML='<div class="ar-j240-card"><button class="ar-j240-close" aria-label="Fermer">×</button><h2>Paramètres JEPALYS</h2><p>Affichage de conduite. Auto est recommandé : JEPALYS passe Jour/Nuit sans ajouter de bouton à la carte.</p><div class="ar-j240-row" id="ar-j240-display"><button data-mode="day">Jour</button><button data-mode="auto">Auto</button><button data-mode="night">Nuit</button></div><p style="margin-top:12px">Les préférences d’itinéraire restent dans la saisie JEPALYS ; elles ne sont pas dupliquées ici.</p></div>';document.body.appendChild(m);m.querySelector('.ar-j240-close').onclick=()=>m.classList.remove('open');m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});m.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{localStorage.setItem(KEY,b.dataset.mode);m.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===b.dataset.mode));refreshAuto()});}
+ function openSettings(){ensureSettings();const m=by('ar-j240-settings');m.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===currentMode()));m.classList.add('open')}
+ document.querySelectorAll('#allroads-mobile-home .ar-settings').forEach(b=>{if(!b.dataset.j240){b.dataset.j240='1';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openSettings()},{capture:true})}});
+ refreshAuto();setInterval(refreshAuto,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshAuto()});
+ // Recherche de lieux/POI : nom+localité OU catégories autour de la position.
+ function ensurePoi(){if(by('ar-j240-poi'))return;const m=document.createElement('section');m.id='ar-j240-poi';m.className='ar-j240-modal';m.innerHTML='<div class="ar-j240-card"><button class="ar-j240-close" aria-label="Fermer">×</button><h2>Rechercher un lieu</h2><p>Magasin + localité, centre commercial, aire, parking, station-service… Le lieu choisi devient directement la destination.</p><div class="ar-j240-searchline"><input id="ar-j240-poi-q" placeholder="ex. Carrefour Perpignan"><button id="ar-j240-poi-go">Rechercher</button></div><div class="ar-j240-row" style="margin-top:8px"><button data-cat="rest_area">Aires repos</button><button data-cat="motorhome">Aires CC</button><button data-cat="parking">Parkings</button><button data-cat="fuel">Stations</button><button data-cat="lpg">GPL</button><button data-cat="water_dump">Eau / vidange</button><button data-cat="camping">Campings</button><button data-cat="mall">Centres commerciaux</button></div><div id="ar-j240-poi-status" style="margin-top:9px;font:750 10px system-ui"></div><div id="ar-j240-poi-results"></div></div>';document.body.appendChild(m);m.querySelector('.ar-j240-close').onclick=()=>m.classList.remove('open');m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});const run=async(cat='')=>{const q=by('ar-j240-poi-q').value.trim();const st=by('ar-j240-poi-status'),out=by('ar-j240-poi-results');st.textContent='Recherche…';out.innerHTML='';let lat='',lon='';try{const p=await window.AllRoadsGpsRuntime?.requestFreshPosition?.(3500);lat=p?.coords?.latitude??'';lon=p?.coords?.longitude??''}catch(_){}const qs=new URLSearchParams();if(q)qs.set('q',q);if(cat)qs.set('category',cat);if(lat!==''&&lon!==''){qs.set('lat',lat);qs.set('lon',lon)};try{const r=await fetch('/poi/search?'+qs.toString(),{credentials:'same-origin'}),data=await r.json();if(!r.ok)throw new Error(data?.detail||'Recherche indisponible');const a=Array.isArray(data)?data:[];st.textContent=a.length?`${a.length} résultat(s)`:'Aucun lieu trouvé.';a.forEach(x=>{const b=document.createElement('button');b.className='ar-j240-result';b.innerHTML=`<strong>${String(x.nom||'Lieu').replace(/[<>]/g,'')}</strong><small>${String(x.adresse||x.localite||'').replace(/[<>]/g,'')}</small>`;b.onclick=()=>{const dest=by('vsflat-to');if(dest){dest.value=x.nom+(x.localite?`, ${x.localite}`:'');dest.dataset.poiLat=x.latitude;dest.dataset.poiLon=x.longitude;dest.dispatchEvent(new CustomEvent('input',{bubbles:true,detail:{j240Poi:true}}))}m.classList.remove('open');toast240('Lieu sélectionné comme destination.');};out.appendChild(b)});}catch(e){st.textContent=e.message||'Recherche indisponible.'}};by('ar-j240-poi-go').onclick=()=>run('');m.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>run(b.dataset.cat));}
+ function installPoiButton(){const card=by('vsflat-route-card');if(!card||by('ar-j240-poi-open'))return;const b=document.createElement('button');b.id='ar-j240-poi-open';b.className='ar-j240-poi-button';b.type='button';b.textContent='⌖ Rechercher aire · parking · commerce · lieu';b.onclick=e=>{e.preventDefault();ensurePoi();by('ar-j240-poi').classList.add('open')};card.insertBefore(b,by('vsflat-route-status')||null)}
+ const obs=new MutationObserver(installPoiButton);obs.observe(document.documentElement,{childList:true,subtree:true});installPoiButton();
 })();
 </script>
+
 </body>
 </html>

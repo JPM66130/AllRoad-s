@@ -2,15 +2,15 @@
   "name": "JEPALYS",
   "short_name": "JEPALYS",
   "description": "JEPALYS — assistant à la conduite · V1 Virage Serré",
-  "start_url": "/app/?v=52.9.239&pwa=1",
+  "start_url": "/app/?v=52.9.201&pwa=1",
   "scope": "/app/",
   "display": "standalone",
   "display_override": [
     "standalone"
   ],
   "orientation": "any",
-  "background_color": "#f5f8fb",
-  "theme_color": "#f5f8fb",
+  "background_color": "#07121f",
+  "theme_color": "#07121f",
   "icons": [
     {
       "src": "/app/icon-192.png",

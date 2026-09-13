@@ -1098,12 +1098,34 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Service worker/cache porté à 52.9.238 pour forcer la prise en compte sur la PWA installée.
 
 
-## J239 — contrôle terrain WP35 / conduite
-- Référence : retour terrain J238 sur PWA WP35.
-- Simulation sans GPS : mouvement continu par interpolation de distance sur le vrai tracé ; guidage et caméra cadencés séparément.
-- Tracé conduite : cœur bleu + fin liseré blanc ; suppression du halo sombre/gris épais.
-- Zoom paysage : les 3 commandes localisation / + / − restent visibles.
-- Instructions : fenêtre manœuvre recalée ; texte contenu dans son champ ; ORS demandé en français + filet de normalisation UI.
-- Barre système Android : thème clair afin de conserver les informations utiles (heure/réseau) visibles dans la PWA.
-- Position : point GPS maintenu temporairement visible comme témoin de vérité ; véhicule placé dans le même pane visuel pour supprimer l'écart de transformation avant suppression définitive du point.
-- Déploiement Render : buildCommand fixé sur api/requirements.txt.
+## J239 — autorité visuelle WP35 + simulation fluide
+- Correctif construit depuis J238 Live.
+- Accueil: règles finales placées après les styles historiques pour que les ajustements WP35 portrait/paysage prennent réellement autorité.
+- Conduite: pastilles Signal GPS / profil séparées pour supprimer le chevauchement.
+- Position: la caméra réelle s'ancre sur le GPS brut; le snap de route ne sert plus à déplacer visuellement le véhicule. Point GPS conservé temporairement comme témoin de diagnostic.
+- Tracé: cœur bleu + liseré blanc fin; suppression du halo sombre/grossier en simulation.
+- Démo sans GPS: passage du déplacement 500 ms à requestAnimationFrame; position toujours calculée par distance le long de la polyline réelle; HUD et caméra cadencés séparément pour réduire les saccades.
+
+## J240 — test global : cœur métier + finition WP35
+- Base : J239 Live. Méthode appliquée : contrôle → nettoyage → injection globale → batterie complète de tests.
+- Accueil : vignettes légèrement moins hautes, logo recalé séparément portrait/paysage et remontée du bloc Itinéraire en paysage sans redesign.
+- Conduite : GPS/profil séparés en paysage, panneau de manœuvre plus haut, commandes Carte/Relief/Satellite compactées en paysage.
+- Loupe : les trois commandes sont visibles et réellement tactiles : recentrage `◎`, zoom `+`, zoom `−`.
+- Arrivée / Reste / Temps : gabarit commun plus haut et hiérarchie visuelle harmonisée dans les deux orientations.
+- Tracé : largeur totale conservée ; liseré blanc réduit et largeur rendue au cœur bleu.
+- Fluidité : le double tracé conduite n'est plus détruit/recréé à chaque tick caméra ; il reste en cache tant que la géométrie de route n'a pas changé. Cela supprime une source directe de flash/voile et de travail inutile.
+- Netteté : aucune accentuation artificielle ; tuiles sans filtre de netteté, éléments UI non sur-échantillonnés et conservation des limites natives des fournisseurs.
+- Paramètres : le bouton ⚙ n'est plus vide. Il ouvre Jour / Auto / Nuit ; Auto est le défaut et décide à partir de la date/heure et, quand disponible, de la position GPS. Aucun bouton Jour/Nuit n'encombre la vue Conduite.
+- POI : nouveau moteur unifié `/poi/search`. Recherche libre nom + localité via ORS/Pelias et recherche de proximité OSM/Overpass pour aires de repos, aires camping-car, parkings, stations, GPL, eau/vidange, campings et centres commerciaux. Le résultat choisi devient une destination exacte et réutilise le moteur de routage existant.
+- Vue Relief : OpenTopoMap est une couche raster ; le hachurage des bâtiments est déjà peint dans les tuiles et ne peut pas être recoloré proprement côté JEPALYS. Aucun faux recoloriage n'est injecté en J240 ; un changement de fournisseur/style sera un choix cartographique séparé.
+- Déploiement Render : `buildCommand: pip install -r api/requirements.txt` contrôlé et conservé.
+- Statut : code prêt pour test global WP35 après validation automatique complète.
+
+
+## J240 — clavier prédictif JEPALYS
+- Ajout d’une ligne de suggestions directement dans le clavier JEPALYS, sans retour au clavier Android.
+- Prédiction locale immédiate sur le mot en cours + apprentissage léger des mots déjà validés sur l’appareil.
+- Pour le champ Destination, interrogation différée (320 ms) du moteur POI J240 afin de proposer de vrais lieux/adresses pendant la frappe.
+- Un lieu proposé conserve ses coordonnées exactes pour le calcul d’itinéraire, sans regéocodage approximatif.
+- Présentation compacte en portrait et intégrée à la colonne clavier en paysage.
+- Cache PWA final J240 renouvelé pour éviter qu’un ancien J240 reste affiché après déploiement.

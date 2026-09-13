@@ -42,7 +42,7 @@ from models import (  # noqa: F401, E402
     trajet_details,
     usage_stats as usage_stats_model,
 )
-from routers import access, alertes, itineraires as itineraires_router, parkings, pays, peages, restrictions, spots, stations, turnaround  # noqa: E402
+from routers import access, alertes, itineraires as itineraires_router, parkings, pays, peages, poi, restrictions, spots, stations, turnaround  # noqa: E402
 from branding import BRANDABLE_PROFILES, DEFAULT_BRANDING  # noqa: E402
 
 
@@ -54,7 +54,7 @@ def _cors_origins():
 
 
 APP_VERSION = "V52.9.102"
-BUILD_VERSION = "J237"
+BUILD_VERSION = "J240"
 app = FastAPI(title="AllRoads API", description="API AllRoads", version=APP_VERSION)
 app.add_middleware(
     CORSMiddleware,
@@ -496,6 +496,7 @@ app.include_router(alertes.router)
 app.include_router(peages.router)
 app.include_router(restrictions.router)
 app.include_router(turnaround.router)
+app.include_router(poi.router)
 
 FRONTEND_DIR = API_DIR / "frontend"
 if FRONTEND_DIR.is_dir():

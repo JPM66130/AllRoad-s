@@ -29,7 +29,7 @@ Statuts : **à faire** / **en cours** / **à tester par moi** / **terminée**.
   En conduite GPS réelle, la carte/route Leaflet est autoritaire : position véhicule GPS, orientation selon déplacement, progression, caméra/zoom de conduite et HUD existant conservé. Deux cadrages partagent exactement la même navigation : « dans le véhicule » (défaut, véhicule non affiché) et « au-dessus du véhicule » (caméra plus haute/reculée, véhicule visible). Le canvas synthétique E2 reste réservé à la simulation/démo sans GPS. E7 doit être validée avant E6.
 - **E8 — STOP Bus et 20 itinéraires — à faire**
   STOP Ramassage/Dépose/Les deux, nom facultatif, GPS, stockage par itinéraire, modification et rappel visuel/vocal.
-- **E9 — POI OpenStreetMap dans rayon 10 km — à faire**
+- **E9 — POI OpenStreetMap dans rayon 10 km — à tester par moi (J240)**
   Catégories V1, compatibilité véhicule, distance routière et impact du détour.
 - **E10 — Source POI camping-car spécialisée — à faire**
   Étudier licence, qualité, couverture et coût ; présenter les options avant toute dépense ou intégration payante.

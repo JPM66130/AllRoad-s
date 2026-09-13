@@ -1,15 +1,16 @@
+rem Référence historique J235 : V52.9.235 ; v=52.9.235&launch=test-terrain-realisable
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 cd /d "%~dp0"
-title JEPALYS V52.9.235 - V1 VIRAGE SERRE - 2 VUES PROPRES
+title JEPALYS J240 - V1 VIRAGE SERRE - TEST GLOBAL
 cls
 rem J226 - nettoyage fantomes camera : autorite unique Leaflet, sans prototype/masque.
 rem Le verrou commercial par defaut reste TEST (Voiture + Bus) hors de ce lanceur.
 set "ALLROADS_ACCESS_STATE=PRO"
 set "ENVIRONMENT=development"
 echo ==============================================================
-echo       JEPALYS V52.9.235 - V1 VIRAGE SERRE - 2 VUES PROPRES
+echo       JEPALYS J240 - V1 VIRAGE SERRE - TEST GLOBAL
 echo ==============================================================
 echo.
 echo Verification du port 8000...
@@ -40,7 +41,7 @@ if defined ADB (
       echo ATTENTION : tunnel ADB non cree pour !ADB_SERIAL!.
     ) else (
       echo Tunnel WP35 OK : http://localhost:8000/app/
-      start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 4; try { $v=(Invoke-RestMethod -Uri 'http://127.0.0.1:8000/version' -TimeoutSec 3).version; if($v -eq 'V52.9.102'){ $url='http://localhost:8000/app/?v=52.9.235&launch=test-terrain-realisable'; $pkgs=(& '%ADB%' -s '!ADB_SERIAL!' shell pm list packages 2>$null) -join [Environment]::NewLine; if($pkgs -match 'package:com.android.chrome'){ & '%ADB%' -s '!ADB_SERIAL!' shell am force-stop com.android.chrome | Out-Null; & '%ADB%' -s '!ADB_SERIAL!' shell am start -a android.intent.action.VIEW -d $url -p com.android.chrome | Out-Null } else { & '%ADB%' -s '!ADB_SERIAL!' shell am start -a android.intent.action.VIEW -d $url | Out-Null } } } catch {}"
+      start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 4; try { $v=(Invoke-RestMethod -Uri 'http://127.0.0.1:8000/version' -TimeoutSec 3).version; if($v -eq 'V52.9.102'){ $url='http://localhost:8000/app/?v=52.9.240&launch=test-global-j240'; $pkgs=(& '%ADB%' -s '!ADB_SERIAL!' shell pm list packages 2>$null) -join [Environment]::NewLine; if($pkgs -match 'package:com.android.chrome'){ & '%ADB%' -s '!ADB_SERIAL!' shell am force-stop com.android.chrome | Out-Null; & '%ADB%' -s '!ADB_SERIAL!' shell am start -a android.intent.action.VIEW -d $url -p com.android.chrome | Out-Null } else { & '%ADB%' -s '!ADB_SERIAL!' shell am start -a android.intent.action.VIEW -d $url | Out-Null } } } catch {}"
     )
   ) else (
     echo ATTENTION : aucun appareil ADB actif. Ouvrez le debogage sans fil du WP35.
@@ -51,7 +52,7 @@ if defined ADB (
 
 echo.
 echo Version moteur attendue : V52.9.102
-echo JEPALYS V52.9.235 : simulation propre via saisie JEPALYS
+echo JEPALYS J240 : test global accueil + conduite + POI + affichage auto
 echo Verification : http://localhost:8000/version
 echo.
 cd api
