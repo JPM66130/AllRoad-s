@@ -7,7 +7,7 @@ def text():
 
 def test_j242_version_and_final_authority():
     s=text()
-    assert ('J242 · Virage Serré · WP35' in s) or ('J243 · Virage Serré · WP35' in s)
+    assert any(v in s for v in ('J242 · Virage Serré · WP35','J243 · Virage Serré · WP35','J244 · Virage Serré · WP35'))
     assert 'jepalys-j242-field-authority' in s
     assert 'grid-template-rows:repeat(2,82px)' in s
     assert 'height:42px!important;min-height:42px' in s
@@ -29,4 +29,4 @@ def test_j242_landscape_maneuver_and_trip_windows():
 def test_j242_route_total_width_kept_white_thinner():
     s=text()
     assert "weight:Math.max(3,weight+2),color:'#FFFFFF'" in s
-    assert "weight:Math.min(48,weight+1.8),color:'#0A7BFF'" in s
+    assert "weight:Math.min(48,weight+1.0),color:'#0A7BFF'" in s

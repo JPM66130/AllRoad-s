@@ -6544,7 +6544,7 @@ body.ar-mobile-nav-open #map{
         const isHalo=(l.options?.className||'').includes('ar-driving-route-halo');
         l.setStyle(isHalo
           ? {weight:Math.max(3,weight+2),color:'#FFFFFF',opacity:.95,lineCap:'round',lineJoin:'round'}
-          : {weight:Math.min(48,weight+1.8),color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
+          : {weight:Math.min(48,weight+1.0),color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
       });
     }catch(_){}
   }
@@ -7544,49 +7544,7 @@ window.addEventListener('appinstalled',()=>console.info('AllRoads PWA installed'
 })();
 </script>
 \n<!-- V52.9.60 — stabilisation PWA WP35 : viewport + raccourcis PC/scrcpy -->
-<script id="allroads-v52947-pwa-stability">
-(function(){
-  let lastW=0,lastH=0,lastOrientation='',pending=0;
-  function stableViewport(force=false){
-    // V52.9.60 : la coque principale se cale sur le layout viewport, pas sur
-    // visualViewport. Android peut faire osciller visualViewport de quelques
-    // pixels (barres système/clavier), ce qui provoquait des sauts visibles.
-    const w=Math.round(window.innerWidth), h=Math.round(window.innerHeight);
-    const orientation=w>=h?'landscape':'portrait';
-    const microChange=orientation===lastOrientation && Math.abs(w-lastW)<24 && Math.abs(h-lastH)<24;
-    if(!force && lastW && microChange) return;
-    lastW=w; lastH=h; lastOrientation=orientation;
-    document.documentElement.style.setProperty('--ar-visible-w',w+'px');
-    document.documentElement.style.setProperty('--ar-visible-h',h+'px');
-    document.documentElement.classList.toggle('ar-vv-low',w>h && h<390);
-  }
-  function scheduleViewport(force=false,delay=160){clearTimeout(pending);pending=setTimeout(()=>stableViewport(force),delay)}
-  const standalone=window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: fullscreen)').matches||window.navigator.standalone===true;
-  // V52.9.60 : en PWA installée, on FIGE le viewport entre deux rotations.
-  // Les resize Android/scrcpy/barres système ne peuvent plus recalculer la coque.
-  if(!standalone){
-    window.addEventListener('resize',()=>scheduleViewport(false,180),{passive:true});
-  }
-  window.addEventListener('orientationchange',()=>{
-    clearTimeout(pending);
-    setTimeout(()=>stableViewport(true),520);
-    setTimeout(()=>stableViewport(true),900);
-  },{passive:true});
-  // visualViewport n'a volontairement AUCUN droit de redimensionner la coque.
-  // Il est réservé au contrôleur clavier ci-dessous.
-  stableViewport(true);
-  document.documentElement.classList.toggle('ar-standalone-stable',standalone);
-  function dismissKeyboard(){
-    const a=document.activeElement;
-    if(a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) a.blur();
-    try{navigator.virtualKeyboard && navigator.virtualKeyboard.hide && navigator.virtualKeyboard.hide()}catch(_){}
-  }
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Meta' || e.metaKey || (e.shiftKey && (e.key==='Meta'||e.code==='MetaLeft'||e.code==='MetaRight'))) dismissKeyboard();
-  },true);
-  window.AllRoadsDismissKeyboard=dismissKeyboard;
-})();
-</script>
+<!-- J244 nettoyage: ancien contrôleur PWA viewport retiré; autorité unique J244 ci-dessous. -->
 <style id="allroads-v52948-compact-pwa">
 /* V52.9.60 — plein écran PWA: les panneaux bas rendent la place gagnée à la carte. */
 @media (orientation:portrait) and (max-width:700px){
@@ -8306,43 +8264,8 @@ html.ar61-shell-locked body.ar-mobile-home-open #allroads-mobile-home{
 }
 </style>
 <script id="allroads-v52962-single-shell-authority">
-(function(){
-  const root=document.documentElement;
-  let currentOrientation=(window.innerWidth>=window.innerHeight?'landscape':'portrait');
-  let lockedW=Math.round(window.innerWidth), lockedH=Math.round(window.innerHeight);
-  let orientationTimer=0, startupTimer=0;
-  const orient=(w,h)=>w>=h?'landscape':'portrait';
-  function apply(){
-    root.style.setProperty('--ar-shell-w',lockedW+'px');
-    root.style.setProperty('--ar-shell-h',lockedH+'px');
-    root.style.setProperty('--ar-visible-w',lockedW+'px');
-    root.style.setProperty('--ar-visible-h',lockedH+'px');
-    root.classList.toggle('ar-vv-low',lockedW>lockedH && lockedH<390);
-    root.classList.add('ar59-shell-locked','ar61-shell-locked');
-  }
-  function captureOrientation(){
-    const w=Math.round(window.innerWidth),h=Math.round(window.innerHeight);
-    currentOrientation=orient(w,h);lockedW=w;lockedH=h;apply();
-  }
-  function onResize(){
-    const w=Math.round(window.innerWidth),h=Math.round(window.innerHeight);
-    if(orient(w,h)===currentOrientation) return; // barres Android : aucune re-geometrie
-    clearTimeout(orientationTimer);
-    orientationTimer=setTimeout(captureOrientation,520);
-  }
-  apply();
-  /* Une courte stabilisation au lancement permet au mode PWA de prendre sa taille finale,
-     puis la coque reste figée jusqu'à une vraie rotation. */
-  startupTimer=setTimeout(function(){
-    const w=Math.round(window.innerWidth),h=Math.round(window.innerHeight);
-    if(orient(w,h)===currentOrientation){lockedW=w;lockedH=h;apply();}
-  },700);
-  window.addEventListener('resize',onResize,{passive:true});
-  window.addEventListener('orientationchange',function(){
-    clearTimeout(orientationTimer);orientationTimer=setTimeout(captureOrientation,620);
-  },{passive:true});
-  window.AllRoadsShell61={dimensions:()=>({width:lockedW,height:lockedH,orientation:currentOrientation}),recapture:captureOrientation};
-})();
+/* J244 nettoyage : ancien verrou de coque neutralisé. API conservée pour compatibilité. */
+window.AllRoadsShell61={dimensions:()=>({width:Math.round(innerWidth),height:Math.round(innerHeight),orientation:innerWidth>=innerHeight?'landscape':'portrait'}),recapture:()=>window.JEPALYSShell244?.refresh?.('legacy')};
 </script>
 <!-- V52.9.76 — WP35 : zoom natif supprimé à la source + renfort immersif -->
 <style id="allroads-v52962-wp35-root-fix">
@@ -9513,7 +9436,7 @@ function ensureKeyboard(){let k=by('vs207-keyboard');if(k)return k;k=document.cr
 function kbNorm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
 function kbLearn(text){const words=String(text||'').match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]{2,}/g)||[];if(!words.length)return;let a=[];try{a=JSON.parse(localStorage.getItem('jepalys-kb-learned-v240')||'[]')}catch(_){}for(const w of words){if(!a.some(x=>kbNorm(x)===kbNorm(w)))a.unshift(w)}localStorage.setItem('jepalys-kb-learned-v240',JSON.stringify(a.slice(0,80)))}
 function kbReplaceCurrentWord(word){const m=kbBuffer.match(/^(.*?)([^\s,;]*)$/);const prefix=m?m[1]:'';kbBuffer=prefix+word+' ';kbReplaceOnFirst=false;if(activeEdit){delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon}kbLearn(word);renderKeyboardValue();renderKeyboardKeys()}
-function kbChoosePlace(x){const label=String(x?.adresse||x?.nom||'').trim();if(!label)return;kbBuffer=label;kbReplaceOnFirst=false;if(activeEdit&&Number.isFinite(Number(x.latitude))&&Number.isFinite(Number(x.longitude))){activeEdit.dataset.poiLat=String(x.latitude);activeEdit.dataset.poiLon=String(x.longitude)}kbLearn(x?.nom||label);renderKeyboardValue();renderKeyboardKeys()}
+function kbChoosePlace(x){const label=String(x?.adresse||x?.nom||'').trim();if(!label)return;kbBuffer=label;kbReplaceOnFirst=false;if(activeEdit&&Number.isFinite(Number(x.latitude))&&Number.isFinite(Number(x.longitude))){activeEdit.dataset.poiLat=String(x.latitude);activeEdit.dataset.poiLon=String(x.longitude)}kbLearn(x?.nom||label);renderKeyboardValue();renderKeyboardKeys();const k=by('vs207-keyboard');if(k&&activeEdit?.id==='vsflat-to'){k.classList.add('place-selected');compareDestinationInKeyboard()}}
 function renderKbSuggestions(items=[]){const host=by('vs240-kb-suggestions');if(!host)return;host.innerHTML='';items.slice(0,6).forEach(item=>{const b=document.createElement('button');b.type='button';b.className='vs240-suggestion'+(item.kind==='place'?' place':'');b.setAttribute('role','option');b.title=item.label;b.innerHTML=esc(item.label)+(item.meta?`<small>${esc(item.meta)}</small>`:'');b.onclick=()=>item.kind==='place'?kbChoosePlace(item.data):kbReplaceCurrentWord(item.value);host.appendChild(b)})}
 function localKbSuggestions(){if(kbMode!=='text')return[];const m=kbBuffer.match(/([^\s,;]*)$/),raw=(m?.[1]||'').trim(),q=kbNorm(raw);if(q.length<1)return[];let learned=[];try{learned=JSON.parse(localStorage.getItem('jepalys-kb-learned-v240')||'[]')}catch(_){}const src=[...learned,...KB_WORDS],seen=new Set(),out=[];for(const w of src){const n=kbNorm(w);if(n.startsWith(q)&&n!==q&&!seen.has(n)){seen.add(n);out.push({kind:'word',label:w,value:w});if(out.length>=3)break}}return out}
 function scheduleKeyboardSuggestions(){clearTimeout(kbSuggestTimer);if(kbSuggestAbort){try{kbSuggestAbort.abort()}catch(_){}kbSuggestAbort=null}const local=localKbSuggestions();renderKbSuggestions(local);if(activeEdit?.id!=='vsflat-to'||kbMode!=='text'||kbBuffer.trim().length<3)return;const seq=++kbSuggestSeq;kbSuggestTimer=setTimeout(async()=>{const q=kbBuffer.trim();if(q.length<3||activeEdit?.id!=='vsflat-to')return;const ctrl=new AbortController();kbSuggestAbort=ctrl;const qs=new URLSearchParams({q});try{const f=window.__allroadsReliableGpsFix;if(f&&Date.now()-Number(f.at||0)<15000&&Number.isFinite(Number(f.lat))&&Number.isFinite(Number(f.lng))){qs.set('lat',f.lat);qs.set('lon',f.lng)}}catch(_){}try{const r=await fetch('/poi/search?'+qs.toString(),{credentials:'same-origin',signal:ctrl.signal});if(!r.ok)return;const data=await r.json();if(seq!==kbSuggestSeq||q!==kbBuffer.trim())return;const remote=(Array.isArray(data)?data:[]).slice(0,4).map(x=>({kind:'place',label:x.nom||x.adresse||q,meta:x.distance_km!=null?`${Number(x.distance_km).toFixed(1).replace('.',',')} km`:'lieu',data:x}));renderKbSuggestions([...local,...remote])}catch(e){if(e?.name!=='AbortError')console.debug('JEPALYS suggestions:',e)}} ,320)}
@@ -9521,8 +9444,8 @@ function renderKeyboardValue(){const v=by('vs207-kb-value');if(!v)return;v.textC
 function keyboardRows(){if(kbMode==='decimal')return [['1','2','3'],['4','5','6'],['7','8','9'],['0',',','.','⌫']];return [['1','2','3','4','5','6','7','8','9','0'],['A','Z','E','R','T','Y','U','I','O','P'],['Q','S','D','F','G','H','J','K','L','M'],['⇧','W','X','C','V','B','N',"'",'-','⌫'],['é','è','à','ç','ù','ESPACE']];}
 function renderKeyboardKeys(){const host=by('vs207-kb-keys');if(!host)return;host.innerHTML='';keyboardRows().forEach(row=>{const r=document.createElement('div');r.className='vs207-kb-row';row.forEach(key=>{const b=document.createElement('button');b.type='button';b.className='vs207-key';if(['⇧','⌫'].includes(key))b.classList.add('special');if(key==='ESPACE'){b.classList.add('space');b.textContent='Espace'}else b.textContent=key;b.dataset.key=key;b.onclick=()=>pressKeyboardKey(key);r.appendChild(b)});host.appendChild(r)})}
 function pressKeyboardKey(key){if(!activeEdit)return;if(key==='⌫'){delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon;if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}else kbBuffer=[...kbBuffer].slice(0,-1).join('');renderKeyboardValue();return}if(key==='⇧'){kbShift=!kbShift;renderKeyboardKeys();return}if(kbReplaceOnFirst){kbBuffer='';kbReplaceOnFirst=false}delete activeEdit.dataset.poiLat;delete activeEdit.dataset.poiLon;let ch=key;if(key==='ESPACE')ch=' ';else if(/^[A-Z]$/.test(key))ch=kbShift?key:key.toLowerCase();kbBuffer+=ch;if(/^[A-Z]$/.test(key)&&kbShift)kbShift=false;renderKeyboardValue();renderKeyboardKeys()}
-function beginEdit(el,opts={}){if(!el)return;if(activeEdit&&activeEdit!==el)closeKeyboard(true);activeEdit=el;kbOriginal=String(el.value||'');kbBuffer=opts.clear===true?'':kbOriginal;kbReplaceOnFirst=opts.select===true&&!opts.clear;kbShift=true;kbMode=keyboardMode(el);kbRouteSelection=null;kbRouteContext=null;if(el.id==='vsflat-to'){if(activeTour())setActiveTour(null,false);const f=by('vsflat-from');if(f)f.value='Ma position';const st=by('vsflat-route-status');if(st)st.textContent='Départ : Ma position · saisissez la nouvelle destination.';refresh();if(!opts.preserve){kbBuffer='';kbReplaceOnFirst=false}}const k=ensureKeyboard();k.classList.toggle('destination-mode',el.id==='vsflat-to');by('vs207-kb-title').textContent='Saisie JEPALYS';by('vs207-kb-caption').textContent=editCaption(el);renderKeyboardValue();renderKeyboardKeys();resetKeyboardRoutePanel();renderKeyboardRoutePrefs();k.classList.add('open');document.body.classList.add('vs207-keyboard-open')}
-function closeKeyboard(commit=false){const el=activeEdit;clearTimeout(kbSuggestTimer);if(kbSuggestAbort){try{kbSuggestAbort.abort()}catch(_){}kbSuggestAbort=null}if(el&&commit){kbLearn(kbBuffer);el.value=kbBuffer;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}else if(el){el.value=kbOriginal}const k=by('vs207-keyboard');k?.classList.remove('open','destination-mode');document.body.classList.remove('vs207-keyboard-open');renderKbSuggestions([]);activeEdit=null;kbOriginal='';kbBuffer='';kbReplaceOnFirst=false;kbRouteSelection=null;kbRouteContext=null}
+function beginEdit(el,opts={}){if(!el)return;if(activeEdit&&activeEdit!==el)closeKeyboard(true);activeEdit=el;kbOriginal=String(el.value||'');kbBuffer=opts.clear===true?'':kbOriginal;kbReplaceOnFirst=opts.select===true&&!opts.clear;kbShift=true;kbMode=keyboardMode(el);kbRouteSelection=null;kbRouteContext=null;if(el.id==='vsflat-to'){if(activeTour())setActiveTour(null,false);const f=by('vsflat-from');if(f)f.value='Ma position';const st=by('vsflat-route-status');if(st)st.textContent='Départ : Ma position · saisissez la nouvelle destination.';refresh();if(!opts.preserve){kbBuffer='';kbReplaceOnFirst=false}}const k=ensureKeyboard();k.classList.toggle('destination-mode',el.id==='vsflat-to');k.classList.remove('place-selected');by('vs207-kb-title').textContent='Saisie JEPALYS';by('vs207-kb-caption').textContent=editCaption(el);renderKeyboardValue();renderKeyboardKeys();resetKeyboardRoutePanel();renderKeyboardRoutePrefs();k.classList.add('open');document.body.classList.add('vs207-keyboard-open')}
+function closeKeyboard(commit=false){const el=activeEdit;clearTimeout(kbSuggestTimer);if(kbSuggestAbort){try{kbSuggestAbort.abort()}catch(_){}kbSuggestAbort=null}if(el&&commit){kbLearn(kbBuffer);el.value=kbBuffer;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}else if(el){el.value=kbOriginal}const k=by('vs207-keyboard');k?.classList.remove('open','destination-mode','place-selected');document.body.classList.remove('vs207-keyboard-open');renderKbSuggestions([]);activeEdit=null;kbOriginal='';kbBuffer='';kbReplaceOnFirst=false;kbRouteSelection=null;kbRouteContext=null}
 function endEdit(el=activeEdit,blur=true){if(!el)return;closeKeyboard(true)}
 function confirmActiveEdit(){const el=activeEdit;if(!el)return;if(el.id==='vsflat-to'){el.value=kbBuffer;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));const st=by('vsflat-route-status');if(st)st.textContent=kbBuffer.trim()?`Destination : ${kbBuffer.trim()}`:'Indiquez une destination.';if(!kbBuffer.trim()){by('vs214-kb-route-status').textContent='Indiquez une destination.';return}if(kbRouteSelection){launchKeyboardRoute();return}compareDestinationInKeyboard();return}const committed=el;closeKeyboard(true)}
 function bindEditable(scope=document){scope.querySelectorAll?.('input').forEach(el=>{
@@ -9540,7 +9463,7 @@ document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.c
 function showHome(){autoStart=false;if(activeEdit)closeKeyboard(false);closePanel();document.body.classList.remove('vsflat-route-pending','vs-driving-visible','ar-mobile-nav-open','ar52-vehicle-open');document.body.classList.add('ar-mobile-home-open');const h=by('allroads-mobile-home'),n=by('ar-mobile-nav');if(h)h.style.display='block';if(n)n.style.display='none';try{window.AllRoadsGpsRuntime?.prepare?.()}catch(_){}setTimeout(()=>{refresh();window.dispatchEvent(new Event('resize'))},30)}
 function inject(){
  const home=by('allroads-mobile-home'), selected=$('#allroads-mobile-home .ar-home-selected-card');if(!home||!selected)return;
- if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J243 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
+ if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J244 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
  if(!by('vsflat-tagline')){const t=document.createElement('span');t.id='vsflat-tagline';t.textContent='Explorer aujourd’hui, préserver demain.';home.querySelector('.ar-home-hero')?.appendChild(t)}
  if(!by('vsflat-home-actions')){const w=document.createElement('section');w.id='vsflat-home-actions';w.innerHTML=`<div id="vsflat-vehicle-row"><button class="vsflat-action" id="vsflat-vehicle-toggle" type="button" aria-expanded="false"><span><strong>ID véhicule</strong><small>Ajouter · caractéristiques · sauvegarder</small></span><b>⌄</b></button><button class="vsflat-action" id="vsflat-tour-toggle" type="button" aria-expanded="false"><span><strong>Mes tournées</strong><small>Créer · charger · gérer</small></span><b>›</b></button></div><section id="vsflat-panel"></section><section id="vsflat-route-card"><div class="vsflat-route-title"><strong>Itinéraire</strong><span>directement depuis l’accueil</span></div><div class="vsflat-route-fields"><label><span>●</span><input id="vsflat-from" value="Ma position" aria-label="Départ"></label><label><span>◆</span><input id="vsflat-to" placeholder="Ma destination" aria-label="Destination"></label></div><button id="vsflat-route-validate" type="button">Valider</button><div class="vsflat-route-buttons"><button id="vsflat-route-main" class="vsflat-route-main" type="button">Démarrer</button><button id="vsflat-route-demo" class="vsflat-route-demo" type="button">Démo sans GPS</button></div><div id="vsflat-route-status">Indiquez votre destination puis comparez les itinéraires.</div></section>`;selected.insertAdjacentElement('afterend',w)}
  bind();refresh();
@@ -9854,34 +9777,50 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
 </script>
 
 
-<style id="jepalys-j243-boot-state-authority">
-/* J243 — anti-écran vide : l'ancienne restauration de navigation peut remettre
-   ar-mobile-nav-open avant que Virage Serré n'ait validé vs-driving-visible.
-   Dans cet état incohérent, l'Accueil ET la Conduite étaient tous deux masqués. */
-html.jepalys-flat body:not(.vs-driving-visible) #allroads-mobile-home{
- display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+<style id="jepalys-j244-global-authority">
+/* J244 — autorité unique de reprise terrain après nettoyage J243. */
+html.ar61-shell-locked,html.ar61-shell-locked body{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+html.ar61-shell-locked #ar-mobile-nav,html.ar61-shell-locked body.ar-mobile-home-open #allroads-mobile-home{width:100dvw!important;height:100dvh!important;max-width:100dvw!important;max-height:100dvh!important}
+html.jepalys-flat body:not(.vs-driving-visible) #allroads-mobile-home{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+html.jepalys-flat body:not(.vs-driving-visible) #ar-mobile-nav{display:none!important;visibility:hidden!important;pointer-events:none!important}
+/* Destination choisie : le clavier rend immédiatement la place aux préférences et aux 3 routes. */
+#vs207-keyboard.place-selected #vs207-kb-keys,#vs207-keyboard.place-selected #vs207-kb-actions{display:none!important}
+#vs207-keyboard.place-selected #vs214-kb-route-panel{display:flex!important;max-height:none!important;overflow:auto!important}
+#vs207-keyboard.place-selected #vs240-kb-suggestions{display:none!important}
+@media (orientation:portrait) and (max-width:700px){#vs207-keyboard.place-selected{overflow:hidden!important}#vs207-keyboard.place-selected #vs214-kb-route-panel{flex:1!important}}
+/* Accueil paysage : véhicule sous les 8 vignettes; ID véhicule reste dans la colonne gauche, itinéraire à droite. */
+@media (orientation:landscape) and (max-height:620px){
+ html.jepalys-flat #allroads-mobile-home .ar-home-shell{display:grid!important;grid-template-columns:minmax(0,52%) minmax(0,48%)!important;grid-template-rows:66px minmax(0,1fr) 76px!important;column-gap:8px!important;row-gap:5px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-hero{grid-column:1/-1!important;grid-row:1!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-column:1!important;grid-row:2!important;align-self:start!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-selected-card{grid-column:1!important;grid-row:3!important;min-height:72px!important;height:72px!important;margin:0!important;overflow:hidden!important}
+ html.jepalys-flat #vsflat-home-actions{grid-column:2!important;grid-row:2/4!important;margin-top:0!important;align-self:stretch!important;min-height:0!important;overflow:visible!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-promo-row,html.jepalys-flat #allroads-mobile-home .ar-home-actions,html.jepalys-flat #allroads-mobile-home .ar-home-motto{display:none!important}
+ html.jepalys-flat #vsflat-vehicle-row{position:absolute!important;left:8px!important;right:8px!important;bottom:4px!important;z-index:80!important}
+ html.jepalys-flat #vsflat-route-card{height:calc(100% - 42px)!important;box-sizing:border-box!important;overflow:hidden!important}
 }
-html.jepalys-flat body:not(.vs-driving-visible) #ar-mobile-nav{
- display:none!important;visibility:hidden!important;pointer-events:none!important;
+/* Conduite paysage WP35 : guidage, vitesse, stats et commandes ne se chevauchent plus. */
+@media (orientation:landscape) and (max-height:620px){
+ #ar-mobile-nav[data-state="driving"] .ar51-maneuver,#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden .ar51-maneuver{top:50px!important;height:112px!important;min-height:112px!important;grid-template-columns:54px minmax(0,1fr) 64px!important;overflow:hidden!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-limit{width:58px!important;height:58px!important;font-size:20px!important;border-width:6px!important}
+ #ar-mobile-nav[data-state="driving"] .ar525-mapviews{top:170px!important;right:8px!important;z-index:9800!important;display:grid!important;visibility:visible!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-center-map{top:282px!important;right:8px!important;z-index:9800!important;display:grid!important;visibility:visible!important;pointer-events:auto!important}
+ #ar-mobile-nav[data-state="driving"] .ar52967-speed{top:auto!important;bottom:92px!important;left:12px!important;transform:none!important;z-index:9730!important}
+ #ar-mobile-nav[data-state="driving"].ar52998-controls-hidden ~ #ar52998-trip-engraved{bottom:10px!important;z-index:9740!important}
 }
 </style>
-<script id="jepalys-j243-boot-state-js">
+<script id="jepalys-j244-global-js">
 (()=>{'use strict';
- function reconcile(){
-  const b=document.body,h=document.getElementById('allroads-mobile-home'),n=document.getElementById('ar-mobile-nav');
-  if(!b||!h)return;
-  // Une Conduite n'est légitime que lorsque Virage Serré l'a explicitement validée.
-  if(!b.classList.contains('vs-driving-visible')){
-   b.classList.remove('ar-mobile-nav-open','vsflat-route-pending','ar52-vehicle-open');
-   b.classList.add('ar-mobile-home-open');
-   h.style.display='block';h.style.visibility='visible';h.style.opacity='1';
-   if(n){n.style.display='none';n.style.visibility='hidden';n.style.pointerEvents='none';}
-   try{window.JEPALYSFlat?.refresh?.()}catch(_){}
-  }
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',reconcile,{once:true});else reconcile();
- window.addEventListener('load',()=>setTimeout(reconcile,250),{once:true});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(reconcile,80)});
+ const home=()=>document.getElementById('allroads-mobile-home'),nav=()=>document.getElementById('ar-mobile-nav');
+ function reconcileHome(){const b=document.body,h=home(),n=nav();if(!b||!h)return;if(!b.classList.contains('vs-driving-visible')){b.classList.remove('ar-mobile-nav-open','vsflat-route-pending','ar52-vehicle-open');b.classList.add('ar-mobile-home-open');h.style.display='block';h.style.visibility='visible';h.style.opacity='1';if(n){n.style.display='none';n.style.visibility='hidden';n.style.pointerEvents='none'}}}
+ let timer=0,epoch=0;
+ function refresh(reason='resize'){clearTimeout(timer);const e=++epoch;timer=setTimeout(()=>{if(e!==epoch)return;const w=Math.round(innerWidth),h=Math.round(innerHeight),r=document.documentElement;r.style.setProperty('--ar-shell-w',w+'px');r.style.setProperty('--ar-shell-h',h+'px');r.style.setProperty('--ar-visible-w',w+'px');r.style.setProperty('--ar-visible-h',h+'px');r.classList.toggle('ar-vv-low',w>h&&h<390);reconcileHome();const n=nav();if(n&&document.body.classList.contains('vs-driving-visible')){n.style.removeProperty('width');n.style.removeProperty('height');n.style.removeProperty('max-width');n.style.removeProperty('max-height');try{window.AllRoadsFloatingLayout234?.refresh?.()}catch(_){}setTimeout(()=>{try{map?.invalidateSize?.({animate:false,pan:false})}catch(_){}try{window.AllRoadsCamera226?.stabilize?.('j244-'+reason)}catch(_){}},80)}},reason==='orientation'?260:80)}
+ document.addEventListener('DOMContentLoaded',()=>{reconcileHome();refresh('boot')},{once:true});
+ window.addEventListener('load',()=>refresh('load'),{once:true});
+ window.addEventListener('resize',()=>refresh('resize'),{passive:true});
+ window.addEventListener('orientationchange',()=>refresh('orientation'),{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh('visible')});
+ window.JEPALYSShell244={refresh};
 })();
 </script>
 

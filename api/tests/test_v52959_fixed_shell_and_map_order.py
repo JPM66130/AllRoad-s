@@ -15,11 +15,11 @@ def test_pwa_fullscreen_primary_again():
 
 def test_single_fixed_shell_authority_present():
     assert 'allroads-v52959-fixed-shell-js' in HTML
-    assert "root.style.setProperty('--ar-shell-h',h+'px')" in HTML
     assert 'allroads-v52962-single-shell-authority' in HTML
     authority=HTML.split('allroads-v52962-single-shell-authority',1)[1].split('</script>',1)[0]
-    assert "if(orient(w,h)===currentOrientation) return" in authority
-    assert 'visualViewport' in HTML  # still used for keyboard only
+    assert 'ancien verrou de coque neutralisé' in authority
+    assert 'JEPALYSShell244' in HTML
+    assert '100dvh' in HTML
 
 def test_map_selector_before_guidance_geometry():
     assert 'allroads-v52959-shell-reference' in HTML

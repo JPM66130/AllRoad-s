@@ -32,10 +32,10 @@ def test_vehicle_confirmation_finishes_portrait_view():
 
 def test_installed_pwa_freezes_resize_between_rotations():
     text = html()
-    assert "const standalone=window.matchMedia('(display-mode: standalone)').matches" in text
-    assert "if(!standalone){\n    window.addEventListener('resize'" in text
-    assert "document.documentElement.classList.toggle('ar-standalone-stable',standalone);" in text
-    assert 'visualViewport reste réservé au clavier' in text
+    assert 'JEPALYSShell244' in text
+    assert "window.addEventListener('resize',()=>refresh('resize')" in text
+    assert "window.addEventListener('orientationchange',()=>refresh('orientation')" in text
+    assert 'allroads-v52947-pwa-stability' not in text
 
 
 def test_sw_cache_bumped():

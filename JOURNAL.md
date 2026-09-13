@@ -1158,3 +1158,6 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Cause : état incohérent possible `ar-mobile-nav-open` sans `vs-driving-visible`; l’ancienne règle masque alors l’Accueil et l’autorité Virage Serré masque simultanément la Conduite.
 - Correction : réconciliation de l’état de démarrage. Hors Conduite explicitement validée, retour propre à l’Accueil.
 - Aucun changement GPS/routage/caméra.
+
+## J244 — reprise globale terrain après J243
+Contrôle/nettoyage effectué avant correction. Deux autorités historiques concurrentes de viewport/coque ont été supprimées/neutralisées avant mise en place d'une autorité unique J244. Reprise groupée : rotation WP35, récupération Accueil, Accueil paysage, clavier destination rétractable, conduite paysage, commandes, compteur/stats et compromis largeur du ruban. Validation automatique : 432 passed, 53 skipped ; JS/Python/mirrors valides.
