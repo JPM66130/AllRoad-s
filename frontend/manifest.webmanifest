@@ -2,7 +2,7 @@
   "name": "JEPALYS",
   "short_name": "JEPALYS",
   "description": "JEPALYS — assistant à la conduite · V1 Virage Serré",
-  "start_url": "/app/?v=52.9.201&pwa=1",
+  "start_url": "/app/?v=52.9.244&pwa=1",
   "scope": "/app/",
   "display": "standalone",
   "display_override": [

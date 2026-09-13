@@ -1787,7 +1787,7 @@ html.ar-fullscreen-active,html.ar-fullscreen-active body{width:100%;height:100%;
   #ar-fullscreen-trigger .ar-fs-icon{font-size:13px}
 }
 </style>
-<link href="/app/manifest.webmanifest?v=52.9.100" rel="manifest"/>
+<link href="/app/manifest.webmanifest?v=52.9.244" rel="manifest"/>
 <link href="/app/icon-192.png" rel="icon"/>
 <meta content="#07121f" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
@@ -5736,7 +5736,7 @@ body.ar-mobile-nav-open #map{
   }
   function toast(msg,ms=2200,options={}){const t=document.getElementById('ar51-toast');const lock=!!options.lockActions;clearTimeout(toast.timer);if(toast.actionLocked&&!lock){ar52929SetActionLock(false);toast.actionLocked=false}if(lock){ar52929SetActionLock(true);toast.actionLocked=true}t.textContent=msg;t.classList.add('show');toast.timer=setTimeout(()=>{t.classList.remove('show');if(lock){ar52929SetActionLock(false);toast.actionLocked=false}},ms)}
   function syncProfile(p){
-    profile=(p||document.getElementById('profil')?.value||'voiture').toLowerCase();
+    profile=(p||document.getElementById('profil')?.value||'voiture').toLowerCase();const profileSelect=document.getElementById('profil');if(profileSelect)profileSelect.value=profile;
     document.getElementById('ar51-profile-name').textContent=labels[profile]||'Voiture';
     document.body.classList.toggle('ar-profile-bus',profile==='bus');
     const h=Number(document.getElementById('hauteur_m')?.value||0), w=Number(document.getElementById('poids_max_t')?.value||0);
@@ -7529,7 +7529,7 @@ html.ar-vv-low body.ar52-vehicle-open .ar52-card{min-height:40px!important}
  document.body.classList.toggle('ar-pwa-installed',installed);
  if('serviceWorker' in navigator){
    /* /app/sw.js?v=52.9.235 (référence historique J235) */
-   navigator.serviceWorker.register('/app/sw.js?v=52.9.242-final',{scope:'/app/',updateViaCache:'none'})
+   navigator.serviceWorker.register('/app/sw.js?v=52.9.244-final',{scope:'/app/',updateViaCache:'none'})
     .then(reg=>reg.update()).catch(e=>console.warn('AllRoads SW',e));
  }
 window.addEventListener('beforeinstallprompt',e=>{window.__allroadsInstallPrompt=e; console.info('AllRoads PWA installable');});
