@@ -18,7 +18,7 @@ def test_route_is_visual_authority():
     assert "className:'ar-driving-route-core'" in HTML
     assert "color:'#0A7BFF'" in HTML
     assert "color:'#FFFFFF'" in HTML
-    assert "weight:Math.min(48,weight+1)" in HTML
+    assert "weight:Math.min(48,weight+1.8)" in HTML
     assert 'arBringDrivingRouteToFront();' in HTML
     assert 'Math.max(3,weight+2)' in HTML
 

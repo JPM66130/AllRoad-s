@@ -1142,3 +1142,12 @@ Audit avant implantation. Démo sans GPS est désormais un choix de source de po
 - Paramètres : délégation directe sur le bouton réellement affiché ; Jour/Auto/Nuit accessible, Auto conservé par défaut.
 - Instructions : normalisation française commune sur les principaux champs de guidage.
 - render.yaml contrôlé : pip install -r api/requirements.txt.
+
+## J242 — reprise terrain après captures J241
+- Accueil portrait : vignettes réellement compactées ; champs Ma position / Ma destination ramenés à une hauteur de bouton standard, largeur conservée ; logo remonté.
+- Accueil paysage : logo légèrement à droite et bloc Itinéraire remonté sans changer la composition validée.
+- Conduite paysage : panneau de manœuvre agrandi, texte autorisé sur plusieurs lignes et panneau de limitation recentré.
+- Instructions : normalisation française déplacée en amont ; le même texte français alimente désormais affichage et synthèse vocale.
+- Arrivée / Reste / Temps : fenêtres augmentées vers le bas, y compris la version flottante quand les commandes se rétractent.
+- Tracé : largeur totale inchangée ; cœur bleu élargi et blanc réduit davantage.
+- Principe respecté : correction des autorités finales observées sur WP35, sans modification du GPS ni du routage.

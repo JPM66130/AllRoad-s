@@ -3015,7 +3015,31 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
       toggle.textContent = voiceEnabled ? '🔊' : '🔇';
     }
 
+    function jepalysInstructionFr(value) {
+      let s = String(value || '').trim();
+      if (!s) return s;
+      s = s
+        .replace(/^enter the round-?point(?: and)?/i, 'Entrez dans le rond-point et')
+        .replace(/^at the round-?point,? take the (\d+)(?:st|nd|rd|th) exit/i, (_,n) => `Au rond-point, prenez la ${n}e sortie`)
+        .replace(/^take the (\d+)(?:st|nd|rd|th) exit/i, (_,n) => `Prenez la ${n}e sortie`)
+        .replace(/^continue(?: straight)?(?: on)?/i, 'Continuez sur')
+        .replace(/^turn left/i, 'Tournez à gauche')
+        .replace(/^turn right/i, 'Tournez à droite')
+        .replace(/^keep left/i, 'Restez à gauche')
+        .replace(/^keep right/i, 'Restez à droite')
+        .replace(/^bear left/i, 'Serrez à gauche')
+        .replace(/^bear right/i, 'Serrez à droite')
+        .replace(/^make a u-?turn/i, 'Faites demi-tour')
+        .replace(/\bonto\b/gi, 'sur')
+        .replace(/\btowards?\b/gi, 'direction')
+        .replace(/\bexit\b/gi, 'sortie')
+        .replace(/\band take\b/gi, 'et prenez')
+        .replace(/\band\b/gi, 'et');
+      return s.replace(/\s+/g,' ').trim();
+    }
+
     function speakGuidance(message, priority = 'navigation', key = '') {
+      message = jepalysInstructionFr(message);
       if (!voiceEnabled || !('speechSynthesis' in window) || !message) return;
       const now = Date.now();
       const voiceKey = key || `${priority}:${message}`;
@@ -3361,7 +3385,7 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
       const distanceKm = Number(data.distance_km || 0);
       const totalMinutes = Number(data.duree_min || 0);
       const percentRemaining = Math.min(100, Math.max(15, 72));
-      const nextInstruction = (data.etapes && data.etapes[0] && data.etapes[0].instruction) ? data.etapes[0].instruction : 'Continuez sur l’itinéraire';
+      const nextInstruction = jepalysInstructionFr((data.etapes && data.etapes[0] && data.etapes[0].instruction) ? data.etapes[0].instruction : 'Continuez sur l’itinéraire');
       // J211 — la coque mobile ne garde plus les valeurs de démonstration 11,8 km / 15 min.
       // Elle prend immédiatement la distance et la durée du calcul réellement reçu.
       const mobileLeft = document.getElementById('ar51-left');
@@ -3686,14 +3710,15 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
       if (next) {
         const distanceM = Math.max(0, (next.startKm - progress.travelledKm) * 1000);
         const distanceText = distanceM >= 1000 ? `${(distanceM/1000).toFixed(1)} km` : `${Math.max(10, Math.round(distanceM/10)*10)} m`;
-        updateVisualGuide(next.text, distanceText);
-        const mobileInstruction=document.getElementById('ar51-instruction');if(mobileInstruction)mobileInstruction.textContent=next.text;
+        const nextText=jepalysInstructionFr(next.text);
+        updateVisualGuide(nextText, distanceText);
+        const mobileInstruction=document.getElementById('ar51-instruction');if(mobileInstruction)mobileInstruction.textContent=nextText;
         const mobileNextDistance=document.getElementById('ar51-distance');if(mobileNextDistance)mobileNextDistance.textContent=distanceText.replace('.',',');
-        maneuverVoiceStage(next.text, distanceM, accuracyM, `${next.startKm.toFixed(3)}:${next.text}`);
-        document.getElementById('map-instruction-text').textContent = next.text;
+        maneuverVoiceStage(nextText, distanceM, accuracyM, `${next.startKm.toFixed(3)}:${nextText}`);
+        document.getElementById('map-instruction-text').textContent = nextText;
         document.getElementById('map-road-text').textContent = next.road;
-        document.getElementById('driver-callout-main').textContent = next.text;
-        document.getElementById('driver-next').textContent = next.text;
+        document.getElementById('driver-callout-main').textContent = nextText;
+        document.getElementById('driver-next').textContent = nextText;
       } else {
         updateVisualGuide('Destination prochaine', remainingKm > .05 ? `${remainingKm.toFixed(1)} km` : 'Arrivée');
       }
@@ -6519,7 +6544,7 @@ body.ar-mobile-nav-open #map{
         const isHalo=(l.options?.className||'').includes('ar-driving-route-halo');
         l.setStyle(isHalo
           ? {weight:Math.max(3,weight+2),color:'#FFFFFF',opacity:.95,lineCap:'round',lineJoin:'round'}
-          : {weight:Math.min(48,weight+1),color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
+          : {weight:Math.min(48,weight+1.8),color:'#0A7BFF',opacity:1,lineCap:'round',lineJoin:'round'});
       });
     }catch(_){}
   }
@@ -6543,7 +6568,7 @@ body.ar-mobile-nav-open #map{
       // Le liseré sert uniquement au contraste sur satellite et reste volontairement discret.
       const weight=arRouteMetricWeightPx();
       const halo=L.polyline(pts,{className:'ar-driving-route-halo',color:'#FFFFFF',weight:Math.max(3,weight+2),opacity:.95,lineCap:'round',lineJoin:'round',interactive:false});
-      const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+1.6),opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
+      const guide=L.polyline(pts,{className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+1.8),opacity:1,lineCap:'round',lineJoin:'round',interactive:false});
       ar52610DriveCasing=L.layerGroup([halo,guide]).addTo(map);
       arBringDrivingRouteToFront();
       // J240 — même tracé visuel en simulation et en conduite réelle.
@@ -7504,7 +7529,7 @@ html.ar-vv-low body.ar52-vehicle-open .ar52-card{min-height:40px!important}
  document.body.classList.toggle('ar-pwa-installed',installed);
  if('serviceWorker' in navigator){
    /* /app/sw.js?v=52.9.235 (référence historique J235) */
-   navigator.serviceWorker.register('/app/sw.js?v=52.9.241-final',{scope:'/app/',updateViaCache:'none'})
+   navigator.serviceWorker.register('/app/sw.js?v=52.9.242-final',{scope:'/app/',updateViaCache:'none'})
     .then(reg=>reg.update()).catch(e=>console.warn('AllRoads SW',e));
  }
 window.addEventListener('beforeinstallprompt',e=>{window.__allroadsInstallPrompt=e; console.info('AllRoads PWA installable');});
@@ -9515,7 +9540,7 @@ document.addEventListener('keydown',e=>{if(!activeEdit||!by('vs207-keyboard')?.c
 function showHome(){autoStart=false;if(activeEdit)closeKeyboard(false);closePanel();document.body.classList.remove('vsflat-route-pending','vs-driving-visible','ar-mobile-nav-open','ar52-vehicle-open');document.body.classList.add('ar-mobile-home-open');const h=by('allroads-mobile-home'),n=by('ar-mobile-nav');if(h)h.style.display='block';if(n)n.style.display='none';try{window.AllRoadsGpsRuntime?.prepare?.()}catch(_){}setTimeout(()=>{refresh();window.dispatchEvent(new Event('resize'))},30)}
 function inject(){
  const home=by('allroads-mobile-home'), selected=$('#allroads-mobile-home .ar-home-selected-card');if(!home||!selected)return;
- if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J241 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
+ if(!by('vsflat-version')){const v=document.createElement('span');v.id='vsflat-version';v.textContent='J242 · Virage Serré · WP35';home.querySelector('.ar-home-hero')?.appendChild(v)}
  if(!by('vsflat-tagline')){const t=document.createElement('span');t.id='vsflat-tagline';t.textContent='Explorer aujourd’hui, préserver demain.';home.querySelector('.ar-home-hero')?.appendChild(t)}
  if(!by('vsflat-home-actions')){const w=document.createElement('section');w.id='vsflat-home-actions';w.innerHTML=`<div id="vsflat-vehicle-row"><button class="vsflat-action" id="vsflat-vehicle-toggle" type="button" aria-expanded="false"><span><strong>ID véhicule</strong><small>Ajouter · caractéristiques · sauvegarder</small></span><b>⌄</b></button><button class="vsflat-action" id="vsflat-tour-toggle" type="button" aria-expanded="false"><span><strong>Mes tournées</strong><small>Créer · charger · gérer</small></span><b>›</b></button></div><section id="vsflat-panel"></section><section id="vsflat-route-card"><div class="vsflat-route-title"><strong>Itinéraire</strong><span>directement depuis l’accueil</span></div><div class="vsflat-route-fields"><label><span>●</span><input id="vsflat-from" value="Ma position" aria-label="Départ"></label><label><span>◆</span><input id="vsflat-to" placeholder="Ma destination" aria-label="Destination"></label></div><button id="vsflat-route-validate" type="button">Valider</button><div class="vsflat-route-buttons"><button id="vsflat-route-main" class="vsflat-route-main" type="button">Démarrer</button><button id="vsflat-route-demo" class="vsflat-route-demo" type="button">Démo sans GPS</button></div><div id="vsflat-route-status">Indiquez votre destination puis comparez les itinéraires.</div></section>`;selected.insertAdjacentElement('afterend',w)}
  bind();refresh();
@@ -9786,6 +9811,45 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
  ids.forEach(id=>{const n=by(id);if(!n)return;normalizeNode(n);new MutationObserver(()=>{normalizeNode(n);if(id==='ar51-instruction'){const a=by('ar51-arrow');a?.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(n.textContent||''));}}).observe(n,{childList:true,subtree:true,characterData:true})});
  // Si une ancienne couche remet le symbole du rond-point, notre classe reste l'autorité visuelle.
  const ins=by('ar51-instruction'),arrow=by('ar51-arrow');if(ins&&arrow)arrow.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(ins.textContent||''));
+})();
+</script>
+
+
+<style id="jepalys-j242-field-authority">
+/* J242 — autorité terrain finale issue des captures WP35 J241. */
+@media (orientation:portrait) and (max-width:700px){
+ html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-template-rows:repeat(2,82px)!important;gap:4px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-profile{height:82px!important;min-height:82px!important;max-height:82px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translate(7px,-9px)!important}
+ html.jepalys-flat .vsflat-route-fields{gap:5px!important}
+ html.jepalys-flat .vsflat-route-fields label{height:42px!important;min-height:42px!important;max-height:42px!important;padding:3px 7px!important;box-sizing:border-box!important}
+ html.jepalys-flat .vsflat-route-fields input{height:32px!important;min-height:32px!important;font-size:11px!important}
+ html.jepalys-flat #vsflat-route-card{padding:7px 9px!important}
+}
+@media (orientation:landscape) and (max-height:620px){
+ html.jepalys-flat #allroads-mobile-home .ar-jemipal-home-brand{transform:translateX(13px)!important}
+ html.jepalys-flat #vsflat-home-actions{margin-top:69px!important;gap:3px!important}
+ html.jepalys-flat .vsflat-route-fields label{height:34px!important;min-height:34px!important;padding:2px 6px!important;box-sizing:border-box!important}
+ html.jepalys-flat .vsflat-route-fields input{height:26px!important;min-height:26px!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-maneuver,#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden .ar51-maneuver{top:56px!important;height:104px!important;min-height:104px!important;padding:8px 10px 12px!important;overflow:visible!important;align-items:center!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-step{overflow:visible!important;align-self:center!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-step span{display:block!important;font-size:12px!important;line-height:1.18!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin-top:4px!important;max-height:none!important}
+ #ar-mobile-nav[data-state="driving"] .ar51-limit{align-self:center!important;transform:none!important;margin:0!important}
+ #ar-mobile-nav[data-state="driving"] .ar525-mapviews{top:166px!important}
+}
+/* Les trois infos restent entièrement dans leur fenêtre, même lorsque la barre basse se rétracte. */
+#ar-mobile-nav[data-state="driving"] .ar51-stat{height:74px!important;min-height:74px!important;padding:7px 8px 13px!important;overflow:visible!important}
+#ar-mobile-nav[data-state="driving"] .ar51-stat span{margin-top:3px!important;line-height:1!important}
+#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden ~ #ar52998-trip-engraved span{height:64px!important;min-height:64px!important;padding:7px 8px 12px!important;align-content:center!important;overflow:visible!important}
+#ar-mobile-nav[data-state="driving"].ar52998-controls-hidden ~ #ar52998-trip-engraved small{line-height:1!important;margin-top:2px!important}
+/* Rond-point : le texte et le vocal utilisent la même instruction française ; le symbole est un schéma. */
+#ar51-arrow.ar-j241-roundabout::before{width:28px!important;height:28px!important;border-width:4px!important}
+</style>
+<script id="jepalys-j242-field-js">
+(()=>{'use strict';
+ const by=id=>document.getElementById(id);
+ function refreshManeuver(){const n=by('ar51-instruction'),a=by('ar51-arrow');if(!n||!a)return;const round=/rond-point|roundabout|rotary/i.test(n.textContent||'');a.classList.toggle('ar-j241-roundabout',round);}
+ const n=by('ar51-instruction');if(n){refreshManeuver();new MutationObserver(refreshManeuver).observe(n,{childList:true,subtree:true,characterData:true});}
 })();
 </script>
 

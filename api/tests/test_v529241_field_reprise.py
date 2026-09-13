@@ -8,7 +8,7 @@ def test_j241_final_authority_and_field_fixes():
     assert "height:94px" in HTML
     assert "grid-template-columns:repeat(2,minmax(0,1fr))" in HTML
     assert "ar-j241-roundabout" in HTML
-    assert "weight+1.6" in HTML
+    assert "weight+1.8" in HTML
 
 def test_j241_settings_delegation_and_french_normalizer():
     assert "data-j241-mode" in HTML
