@@ -5868,7 +5868,7 @@ body.ar-mobile-nav-open #map{
     if(arJ232SimTimer){cancelAnimationFrame(arJ232SimTimer);arJ232SimTimer=null;}
     arJ239SimLastUiAt=0;arJ239SimLastCameraAt=0;
     arJ232SimStartedAt=0;arJ232SimDurationMs=0;arJ232SimPts=[];arJ232SimCum=[];arJ232SimTotalM=0;arJ232SimPos=null;
-    if(clearVisual)window.__allroadsRouteSimulationMode=false;
+    if(clearVisual)window.__allroadsRouteSimulationMode=false;document.body.classList.remove('ar-route-simulation');
   }
   function arJ232BuildRouteSimulation(){
     const pts=layerRoutePoints(routeLayer);
@@ -5923,7 +5923,7 @@ body.ar-mobile-nav-open #map{
       const lab=document.getElementById('ar51-demo-label');if(lab){lab.style.display='inline-flex';lab.textContent=`SIMULATION SANS GPS · ${Math.round(f*100)} %`;}
     }
     // Caméra limitée à ~8 Hz : fluide sans recalculer tuiles/HUD 60 fois par seconde.
-    if(!arJ239SimLastCameraAt || nowPerf-arJ239SimLastCameraAt>=125){
+    if(!arJ239SimLastCameraAt || nowPerf-arJ239SimLastCameraAt>=50){
       arJ239SimLastCameraAt=nowPerf;
       try{focusDrivingRoute();}catch(_){}
     }
@@ -5938,7 +5938,7 @@ body.ar-mobile-nav-open #map{
   function arJ232StartRouteSimulation(){
     arJ232StopRouteSimulation();
     if(!arJ232BuildRouteSimulation()){toast('Simulation indisponible : aucun itinéraire réel calculé.');return false;}
-    window.__allroadsRouteSimulationMode=true;
+    window.__allroadsRouteSimulationMode=true;document.body.classList.add('ar-route-simulation');
     try{document.body.dataset.arVisualMode='real';window.AllRoadsVisualBrick?.apply?.('driving');arE7EnsureBaseLayer();map.invalidateSize({animate:false,pan:false});}catch(_){ }
     arJ232SimStartedAt=Date.now();arJ232ApplySimProgress(0);
     const arJ239SimFrame=()=>{
@@ -6635,7 +6635,7 @@ body.ar-mobile-nav-open #map{
       const i=snap.index;
       // J239 — le véhicule visuel représente la position GPS réelle, jamais une projection forcée sur la route.
       // La route la plus proche ne sert qu'à déterminer l'axe/horizon de caméra.
-      const anchor=demoMode ? snap.pos : L.latLng(rawPos.lat,rawPos.lng);
+      const anchor=L.latLng(rawPos.lat,rawPos.lng);
       const size=map.getSize();
 
       // V52.9.120 — référentiel géométrique unique de la caméra.
@@ -6732,7 +6732,7 @@ body.ar-mobile-nav-open #map{
         return pts[pts.length-1];
       }
       const ahead=pointAtDistance(horizonMeters);
-      const headingPoint=pointAtDistance(Math.min(220,Math.max(60,horizonMeters*.08)));
+      const headingPoint=pointAtDistance(Math.min(420,Math.max(140,horizonMeters*.18)));
 
       function projectedRoutePixelsAtZoom(z){
         let px=0,travel=0,prevLatLng=anchor,prevPx=map.project(anchor,z);
@@ -6756,7 +6756,13 @@ body.ar-mobile-nav-open #map{
       const headingProbeA=map.project(anchor,15),headingProbeB=map.project(headingPoint,15);
       const headingDx=headingProbeB.x-headingProbeA.x,headingDy=headingProbeB.y-headingProbeA.y;
       if(Math.hypot(headingDx,headingDy)<=1){clearDrivingBearing();return;}
-      const heading=Math.atan2(headingDx,-headingDy)*180/Math.PI;
+      const rawHeading=Math.atan2(headingDx,-headingDy)*180/Math.PI;
+      let heading=rawHeading;
+      if(demoMode&&Number.isFinite(Number(arE7LastDrivingCamera?.heading))){
+        const previousHeading=Number(arE7LastDrivingCamera.heading);
+        const delta=((rawHeading-previousHeading+540)%360)-180;
+        heading=previousHeading+delta*0.22;
+      }
       const theta=heading*Math.PI/180;
       const coverScale=arE7RotationCoverScale(heading,size);
       const safeLeft=Math.round(size.x*0.07),safeRight=Math.round(size.x*0.93);
@@ -8544,6 +8550,8 @@ body[data-ar-visual-mode="real"].ar-e7-camera-driver #ar5268-drive-vehicle{displ
 body[data-ar-visual-mode="real"].ar-e7-camera-driver #map .ar5263-vehicle-icon{opacity:0!important}
 body[data-ar-visual-mode="real"].ar-e7-camera-overhead #ar5268-drive-vehicle{display:none!important}
 body[data-ar-visual-mode="real"].ar-e7-camera-overhead #map .ar5263-vehicle-icon{opacity:1!important}
+body.ar-route-simulation #ar5268-drive-vehicle{display:none!important}
+body.ar-route-simulation #map .ar5263-vehicle-icon{opacity:1!important}
 </style>
 <script id="allroads-e7-visual-brick-js">
 (function(){
