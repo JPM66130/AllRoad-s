@@ -9702,11 +9702,22 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
 #vs207-keyboard.destination-mode #vs207-kb-actions{margin-top:-2px!important}
 @media (orientation:portrait) and (max-width:700px){
  #vs207-keyboard{gap:4px!important;padding-block:7px!important}
- #vs207-keyboard.destination-mode #vs214-kb-route-panel{max-height:198px!important}
+ #vs207-keyboard.destination-mode #vs214-kb-route-panel{height:330px!important;min-height:330px!important;max-height:330px!important}
  #vs207-keyboard.destination-mode #vs207-kb-screen{min-height:46px!important}
+ #vs207-keyboard.destination-mode #vs214-kb-route-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ #vs207-keyboard.destination-mode .vs214-route-choice{padding:7px 10px!important}
+ #vs207-keyboard.destination-mode #vs214-kb-route-list .vs214-route-choice:nth-child(3){grid-column:1/-1!important;width:calc(50% - 3px)!important;justify-self:center!important}
+ #vs207-keyboard.place-selected{overflow:hidden!important}
+ #vs207-keyboard.place-selected #vs214-kb-route-panel{flex:1 1 auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+ #vs207-keyboard.place-selected #vs214-kb-route-list{grid-template-columns:1fr!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:7px!important;flex:1 1 auto!important;min-height:0!important}
+ #vs207-keyboard.place-selected .vs214-route-choice{min-height:0!important;padding:9px 11px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+ #vs207-keyboard.place-selected .vs214-route-choice strong{font-size:11px!important;margin-bottom:4px!important}
+ #vs207-keyboard.place-selected .vs214-route-choice .metrics{font-size:10px!important}
+ #vs207-keyboard.place-selected .vs214-route-choice .cost{font-size:9px!important;margin-top:3px!important}
 }
 @media (orientation:landscape) and (max-height:620px){
  #vs207-keyboard.destination-mode{grid-template-rows:auto auto auto 1fr auto!important;row-gap:3px!important}
+ #vs207-keyboard.destination-mode #vs207-kb-screen{min-height:40px!important;padding-block:4px!important}
  #vs207-keyboard.destination-mode #vs214-kb-route-panel{overflow:hidden!important}
  #vs214-kb-route-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important}
  #vs214-kb-route-list .vs214-route-choice:nth-child(3){grid-column:1/-1!important;width:calc(50% - 2px)!important;justify-self:center!important}
@@ -9790,10 +9801,10 @@ html.jepalys-flat body:not(.vs-driving-visible) #ar-mobile-nav{display:none!impo
 @media (orientation:portrait) and (max-width:700px){#vs207-keyboard.place-selected{overflow:hidden!important}#vs207-keyboard.place-selected #vs214-kb-route-panel{flex:1!important}}
 /* Accueil paysage : véhicule sous les 8 vignettes; ID véhicule reste dans la colonne gauche, itinéraire à droite. */
 @media (orientation:landscape) and (max-height:620px){
- html.jepalys-flat #allroads-mobile-home .ar-home-shell{display:grid!important;grid-template-columns:minmax(0,52%) minmax(0,48%)!important;grid-template-rows:66px minmax(0,1fr) 76px!important;column-gap:8px!important;row-gap:5px!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-shell{display:grid!important;grid-template-columns:minmax(0,52%) minmax(0,48%)!important;grid-template-rows:66px minmax(0,1fr) 84px!important;column-gap:8px!important;row-gap:5px!important}
  html.jepalys-flat #allroads-mobile-home .ar-home-hero{grid-column:1/-1!important;grid-row:1!important}
  html.jepalys-flat #allroads-mobile-home .ar-profile-grid{grid-column:1!important;grid-row:2!important;align-self:start!important}
- html.jepalys-flat #allroads-mobile-home .ar-home-selected-card{grid-column:1!important;grid-row:3!important;min-height:72px!important;height:72px!important;margin:0!important;overflow:hidden!important}
+ html.jepalys-flat #allroads-mobile-home .ar-home-selected-card{grid-column:1!important;grid-row:3!important;min-height:84px!important;height:84px!important;margin:0!important;overflow:hidden!important}
  html.jepalys-flat #vsflat-home-actions{grid-column:2!important;grid-row:2/4!important;margin-top:0!important;align-self:stretch!important;min-height:0!important;overflow:visible!important}
  html.jepalys-flat #allroads-mobile-home .ar-home-promo-row,html.jepalys-flat #allroads-mobile-home .ar-home-actions,html.jepalys-flat #allroads-mobile-home .ar-home-motto{display:none!important}
  html.jepalys-flat #vsflat-vehicle-row{position:absolute!important;left:8px!important;right:8px!important;bottom:4px!important;z-index:80!important}
