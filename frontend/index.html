@@ -3713,6 +3713,7 @@ html,body,#ar-mobile-nav,#map,.leaflet-container{background:#082b34!important}
         const nextText=jepalysInstructionFr(next.text);
         updateVisualGuide(nextText, distanceText);
         const mobileInstruction=document.getElementById('ar51-instruction');if(mobileInstruction)mobileInstruction.textContent=nextText;
+        const mobileArrow=document.getElementById('ar51-arrow');if(mobileArrow)mobileArrow.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(nextText));
         const mobileNextDistance=document.getElementById('ar51-distance');if(mobileNextDistance)mobileNextDistance.textContent=distanceText.replace('.',',');
         maneuverVoiceStage(nextText, distanceM, accuracyM, `${next.startKm.toFixed(3)}:${nextText}`);
         document.getElementById('map-instruction-text').textContent = nextText;
@@ -6441,7 +6442,6 @@ body.ar-mobile-nav-open #map{
   }
   let arE7LastDrivingCamera=null;
   function arE7ApplyDrivingCamera(center,zoom,heading){
-    arE7ResetDrivingPaneTransform();
     map.setView(center,zoom,{animate:false});
     setDrivingBearing(heading);
     // V52.9.231 — après tout mouvement caméra, le tracé revient au-dessus du décor.
@@ -6629,10 +6629,6 @@ body.ar-mobile-nav-open #map{
         // des centaines de kilomètres et surtout pas de position inventée.
         return;
       }
-
-      // Nettoyage AVANT toute projection : l'ancien transform visuel ne doit pas
-      // contaminer le calcul du cadre suivant.
-      arE7ResetDrivingPaneTransform();
 
       const baseZoom=map.getZoom();
       const snap=snapToRoute(rawPos,pts,baseZoom);
@@ -9742,7 +9738,7 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
  ];for(const [r,v] of rules)if(r.test(s)){s=s.replace(r,v);break}return s.replace(/\bonto\b/gi,'sur').replace(/\btoward(?:s)?\b/gi,'direction').replace(/\bexit\b/gi,'sortie');}
  function normalizeNode(n){if(!n)return;const v=fr(n.textContent);if(v&&v!==n.textContent)n.textContent=v;}
  const ids=['ar51-instruction','map-instruction-text','visual-guide-instruction','driver-callout-main'];
- ids.forEach(id=>{const n=by(id);if(!n)return;normalizeNode(n);new MutationObserver(()=>{normalizeNode(n);if(id==='ar51-instruction'){const a=by('ar51-arrow');a?.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(n.textContent||''));}}).observe(n,{childList:true,subtree:true,characterData:true})});
+ ids.forEach(id=>{const n=by(id);if(n)normalizeNode(n);});
  // Si une ancienne couche remet le symbole du rond-point, notre classe reste l'autorité visuelle.
  const ins=by('ar51-instruction'),arrow=by('ar51-arrow');if(ins&&arrow)arrow.classList.toggle('ar-j241-roundabout',/rond-point|roundabout|rotary/i.test(ins.textContent||''));
 })();
@@ -9783,7 +9779,7 @@ body.ar-j240-night #allroads-mobile-home{background:#07121f!important}
 (()=>{'use strict';
  const by=id=>document.getElementById(id);
  function refreshManeuver(){const n=by('ar51-instruction'),a=by('ar51-arrow');if(!n||!a)return;const round=/rond-point|roundabout|rotary/i.test(n.textContent||'');a.classList.toggle('ar-j241-roundabout',round);}
- const n=by('ar51-instruction');if(n){refreshManeuver();new MutationObserver(refreshManeuver).observe(n,{childList:true,subtree:true,characterData:true});}
+ const n=by('ar51-instruction');if(n)refreshManeuver();
 })();
 </script>
 
