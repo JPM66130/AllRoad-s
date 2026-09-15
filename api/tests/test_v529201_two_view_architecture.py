@@ -46,10 +46,10 @@ def test_route_calculation_is_headless_then_direct_drive():
     assert "window.addEventListener('allroads:route-ready',()=>{if(!autoStart)return;autoStart=false;resetRouteButton();startDrive()})" in HTML
 
 
-def test_manual_destination_returns_origin_to_my_position():
-    assert "const f=by('vsflat-from');if(f)f.value='Ma position'" in HTML
+def test_j249_manual_destination_preserves_planned_origin_and_clears_tour():
+    assert "if(f)f.value='Ma position'" not in HTML
+    assert "((f?.value||'').trim()||'Ma position')" in HTML
     assert "if(activeTour())setActiveTour(null,false)" in HTML
-
 
 def test_tour_label_and_return_share_same_endpoints():
     assert "return e.to?`${e.from} - ${e.to}`:e.from" in HTML

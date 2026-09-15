@@ -25,9 +25,9 @@ def test_v202_routing_error_returns_to_home():
     assert "phase:'routing'" in HTML
     assert "window.dispatchEvent(new CustomEvent('allroads:route-error'" in HTML
 
-def test_v202_destination_manual_edit_restores_my_position():
-    assert "if(f)f.value='Ma position'" in HTML
-    assert "Départ : Ma position · saisissez la nouvelle destination." in HTML
+def test_j249_destination_manual_edit_preserves_planned_origin():
+    assert "if(f)f.value='Ma position'" not in HTML
+    assert "((f?.value||'').trim()||'Ma position')" in HTML
 
 def test_v202_input_panel_is_compact_and_high():
     assert "top:4px!important;left:10px!important;right:10px!important" in HTML

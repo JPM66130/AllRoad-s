@@ -13,8 +13,9 @@ def test_v215_version_and_launch_token():
 
 def test_v215_camera_uses_fractional_geometry_not_manual_zoom_delta():
     assert 'map.options.zoomSnap=0.25;map.options.zoomDelta=0.25;' in HTML
-    assert 'const horizonSeconds=50;' in HTML
-    assert 'Math.min(1800,Math.max(280,speedHorizonMeters,maneuverHorizonMeters))' in HTML
+    assert 'const headingPoint=pointAtDistance(Math.min(420,Math.max(140,horizonMeters*.18)));' in HTML
+    assert 'const localManeuverCeiling=Math.max(500,Math.min(1200,speedHorizonMeters*1.35||500));' in HTML
+    assert 'const desiredHorizonMeters=Math.min(1800,Math.max(280,Number.isFinite(maneuverMeters)?Math.min(speedHorizonMeters||280,Math.max(280,maneuverMeters*1.10)):speedHorizonMeters||280));' in HTML
     assert 'const exactZoom=referenceZoom+Math.log2(scaleLimit);' in HTML
     assert 'Math.floor(exactZoom*4)/4' in HTML
     assert 'for(let candidate=11;candidate<=17;candidate++)' not in HTML

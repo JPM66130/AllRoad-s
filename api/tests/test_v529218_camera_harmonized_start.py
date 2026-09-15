@@ -31,5 +31,5 @@ def test_no_full_route_fallback_when_gps_temporarily_stale():
         s = text(path)
         assert "holding-camera-no-fresh-gps" in s
         assert "arE7LastDrivingCamera" in s
-        block = s[s.index("if(!rawPos||pts.length<2){"):s.index("// Nettoyage AVANT toute projection")]
+        block = s[s.index("if(!rawPos||pts.length<2){"):s.index("const anchor=L.latLng(rawPos.lat,rawPos.lng);")]
         assert "map.fitBounds" not in block

@@ -18,12 +18,13 @@ def test_route_is_visual_authority():
     assert "className:'ar-driving-route-core'" in HTML
     assert "color:'#0A7BFF'" in HTML
     assert "color:'#FFFFFF'" in HTML
-    assert "weight:Math.min(48,weight+1.8)" in HTML
+    assert "className:'ar-driving-route-halo'" in HTML
     assert 'arBringDrivingRouteToFront();' in HTML
-    assert 'Math.max(3,weight+2)' in HTML
+    assert "className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+3.2)" in HTML
 
 def test_field_camera_is_realistic_not_perspective_experiment():
-    assert 'const horizonSeconds=50;' in HTML
-    assert 'Math.max(280,speedHorizonMeters,maneuverHorizonMeters)' in HTML
+    assert 'const headingPoint=pointAtDistance(Math.min(420,Math.max(140,horizonMeters*.18)));' in HTML
+    assert 'const localManeuverCeiling=Math.max(500,Math.min(1200,speedHorizonMeters*1.35||500));' in HTML
+    assert 'const desiredHorizonMeters=Math.min(1800,Math.max(280,Number.isFinite(maneuverMeters)?Math.min(speedHorizonMeters||280,Math.max(280,maneuverMeters*1.10)):speedHorizonMeters||280));' in HTML
     assert 'usableHeight*0.74' in HTML
     assert 'maplibregl' not in HTML.lower()

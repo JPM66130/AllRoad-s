@@ -17,8 +17,8 @@ def test_j244_driving_landscape_no_overlap_contract():
  assert 'bottom:92px!important;left:12px!important' in HTML
  assert '.ar51-center-map{top:282px!important' in HTML
 def test_j244_route_compromise():
- assert "weight:Math.max(3,weight+2),color:'#FFFFFF'" in HTML
- assert "weight:Math.min(48,weight+1.0),color:'#0A7BFF'" in HTML
+ assert "className:'ar-driving-route-core'" in HTML
+ assert "className:'ar-driving-route-core',color:'#0A7BFF',weight:Math.min(48,weight+3.2)" in HTML
 def test_j244_mirrors():
  assert (ROOT/'api/frontend/index.html').read_bytes()==(ROOT/'frontend/index.html').read_bytes()
  assert (ROOT/'api/frontend/sw.js').read_bytes()==(ROOT/'frontend/sw.js').read_bytes()

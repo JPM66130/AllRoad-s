@@ -70,7 +70,7 @@ class GeoCalculTest(unittest.TestCase):
         }
         try:
             result = geo.calcul_itineraire(42.668, 2.621, 42.55, 2.395, 70, "camping_car", None)
-            self.assertEqual(result["source"], "graphhopper")
+            self.assertEqual(result["source"], "openrouteservice")
             self.assertEqual(result["vitesse_kmh"], 70)
             self.assertIn("steps", result)
         finally:

@@ -16,7 +16,8 @@ def test_real_driver_camera_rotates_leaflet_panes_with_calculated_cover_scale():
 def test_v529118_keeps_route_heading_orientation_with_single_apply_path():
     block = _focus_block()
     assert 'const headingPoint=pointAtDistance' in block
-    assert 'const heading=Math.atan2(headingDx,-headingDy)*180/Math.PI;' in block
+    assert 'const rawHeading=Math.atan2(headingDx,-headingDy)*180/Math.PI;' in block
+    assert 'heading=previousHeading+delta*0.22;' in block
     assert 'arE7ApplyDrivingCamera(map.unproject(centerPx,z),z,heading);' in block
     assert 'lookAheadPx' not in block
     assert 'cameraCenter' not in block

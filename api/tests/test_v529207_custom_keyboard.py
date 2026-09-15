@@ -22,9 +22,9 @@ def test_keyboard_has_explicit_validate_and_close():
     assert "closeKeyboard(false)" in HTML
     assert "confirmActiveEdit()" in HTML
 
-def test_destination_returns_to_my_position_and_clears_for_manual_entry():
+def test_j249_destination_keeps_manual_origin_and_clears_entry_buffer():
     assert "if(el.id==='vsflat-to')" in HTML
-    assert "f.value='Ma position'" in HTML
+    assert "f.value='Ma position'" not in HTML
     assert "kbBuffer=''" in HTML
 
 def test_numeric_and_azerty_layouts_exist():

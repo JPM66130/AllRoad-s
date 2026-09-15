@@ -16,7 +16,7 @@ def test_no_arbitrary_hidden_scale_in_driving_bearing():
 
 def test_single_camera_apply_path_and_clean_measurement():
     b=camera_block()
-    assert 'arE7ResetDrivingPaneTransform();' in b
+    assert 'arE7ResetDrivingPaneTransform();' not in b
     assert 'arE7ApplyDrivingCamera(map.unproject(centerPx,z),z,heading);' in b
     assert 'map.setView(map.unproject(centerPx,z)' not in b
 
@@ -26,7 +26,8 @@ def test_local_axis_drives_center_and_orientation():
     assert 'const headingProbeA=map.project(anchor,15),headingProbeB=map.project(headingPoint,15);' in b
     assert 'const pa=map.project(anchor,z);' in b
     assert 'const centerPx=L.point(pa.x-preRot.x,pa.y-preRot.y);' in b
-    assert 'const heading=Math.atan2(headingDx,-headingDy)*180/Math.PI;' in b
+    assert 'const rawHeading=Math.atan2(headingDx,-headingDy)*180/Math.PI;' in b
+    assert 'heading=previousHeading+delta*0.22;' in b
 
 def test_no_route_start_as_fake_driver_anchor_without_gps():
     b=camera_block()
