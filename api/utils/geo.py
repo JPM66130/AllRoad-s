@@ -345,6 +345,40 @@ def geocoder(adresse, focus_lat=None, focus_lon=None):
     return places[:5]
 
 
+def reverse_geocoder(latitude, longitude):
+    api_key = _ors_api_key()
+    if api_key is None:
+        return None
+    params = {"point.lat": float(latitude), "point.lon": float(longitude), "size": 1}
+    query = urllib.parse.urlencode(params)
+    request = urllib.request.Request(
+        f"https://api.heigit.org/pelias/v1/reverse?{query}",
+        headers={"Authorization": api_key, "User-Agent": "AllRoads/1.0"},
+    )
+    response = None
+    last_error = None
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(request, timeout=20) as raw_response:
+                response = json.loads(raw_response.read().decode("utf-8"))
+            break
+        except Exception as error:
+            last_error = error
+            logger.warning("Geocodage inverse ORS indisponible (essai %s/2): %s", attempt + 1, error)
+    if response is None:
+        raise GeocodingUnavailable("Service de geocodage inverse temporairement indisponible") from last_error
+    features = response.get("features", [])
+    if not features:
+        return None
+    feature = features[0]
+    properties = feature.get("properties", {})
+    return {
+        "nom": properties.get("label") or "Position GPS",
+        "pays": properties.get("country"),
+        "longitude": float(longitude),
+        "latitude": float(latitude),
+    }
+
 def calcul_itineraire_avec_ferry(lat1, lon1, lat2, lon2, vitesse_kmh, profil, contraintes=None):
     client = _ors_client()
     ors_profile = ORS_PROFILES.get(profil, "driving-car")

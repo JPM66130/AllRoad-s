@@ -1,5 +1,6 @@
 import json
 import math
+import uuid
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -12,7 +13,7 @@ from models.arrets import Arret
 from models.compteur import Compteur
 from models.itineraires import Itineraire
 from models.trajet_details import TrajetDetail
-from utils.geo import GeocodingUnavailable, calcul_itineraire, calcul_itineraire_avec_ferry, geocoder, liaisons_ferry
+from utils.geo import GeocodingUnavailable, calcul_itineraire, calcul_itineraire_avec_ferry, geocoder, liaisons_ferry, reverse_geocoder
 from utils.carburants import get_eu_fuel_prices, get_fuel_prices
 
 router = APIRouter(prefix="/itineraire", tags=["Itinéraires"])
@@ -28,9 +29,7 @@ VehicleProfile = Literal[
     "poids_lourd",
 ]
 
-MAX_SAVED_TRIPS = 20
 MAX_AUTO_TRIPS = 20
-MAX_VOLUNTARY_TRIPS = 20
 MAX_STOPS_PER_TRIP = 20
 
 
@@ -141,6 +140,11 @@ class ArretCreate(BaseModel):
     precision_m: float = Field(ge=0, le=100)
 
 
+class TourneeEndpointUpdate(BaseModel):
+    type: Literal["depart", "arrivee"]
+    arret_id: int = Field(gt=0)
+
+
 class TourneeUpdate(BaseModel):
     nom_tournee: str = Field(min_length=1, max_length=80)
 
@@ -216,6 +220,11 @@ def _serialize_trip(itineraire, db):
         "profil": detail.profil if detail else "voiture",
         "nom_tournee": detail.nom_tournee if detail else "Tournée sans nom",
         "sauvegarde_volontaire": bool(detail.sauvegarde_volontaire) if detail else False,
+        "statut_diffusion": detail.statut_diffusion if detail else "personnelle",
+        "client_id": detail.client_id if detail else None,
+        "depot_id": detail.depot_id if detail else None,
+        "validee_par": detail.validee_par if detail else None,
+        "note_exploitation": detail.note_exploitation if detail else None,
         "geometry": json.loads(detail.geometry_json) if detail else None,
         "arrets": [_serialize_stop(stop) for stop in stops],
     }
@@ -513,22 +522,50 @@ def marquer_arret(itineraire_id: int, payload: ArretCreate, db: Session = Depend
     return _serialize_stop(arret)
 
 
+@router.put("/{itineraire_id}/tournee/endpoint")
+def modifier_extremite_tournee(itineraire_id: int, payload: TourneeEndpointUpdate, db: Session = Depends(get_db)):
+    itineraire = db.get(Itineraire, itineraire_id)
+    if itineraire is None:
+        raise HTTPException(status_code=404, detail="Itineraire introuvable.")
+    detail = db.query(TrajetDetail).filter(TrajetDetail.itineraire_id == itineraire_id).one_or_none()
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Detail de trajet introuvable.")
+    if detail.statut_diffusion == "validee":
+        raise HTTPException(status_code=409, detail="Une tournee validee ne peut pas etre modifiee directement. Proposez une modification.")
+    arret = db.query(Arret).filter(Arret.id == payload.arret_id, Arret.itineraire_id == itineraire_id).one_or_none()
+    if arret is None:
+        raise HTTPException(status_code=404, detail="Arret introuvable pour cet itineraire.")
+    try:
+        lieu = reverse_geocoder(arret.latitude, arret.longitude)
+    except GeocodingUnavailable:
+        lieu = None
+    nom = lieu["nom"] if lieu and lieu.get("nom") else arret.nom
+    if payload.type == "depart":
+        itineraire.depart = nom
+        itineraire.lat_depart = arret.latitude
+        itineraire.lon_depart = arret.longitude
+    else:
+        itineraire.arrivee = nom
+        itineraire.lat_arrivee = arret.latitude
+        itineraire.lon_arrivee = arret.longitude
+    db.commit()
+    db.refresh(itineraire)
+    return {
+        "itineraire_id": itineraire_id,
+        "arret_id": arret.id,
+        "type": payload.type,
+        "nom": nom,
+        "latitude": arret.latitude,
+        "longitude": arret.longitude,
+    }
+
 @router.put("/{itineraire_id}/tournee")
 def nommer_tournee(itineraire_id: int, payload: TourneeUpdate, db: Session = Depends(get_db)):
     detail = db.query(TrajetDetail).filter(TrajetDetail.itineraire_id == itineraire_id).one_or_none()
     if detail is None:
         raise HTTPException(status_code=404, detail="Itinéraire introuvable.")
-    if not detail.sauvegarde_volontaire:
-        nb_sauvegardees = (
-            db.query(TrajetDetail)
-            .filter(TrajetDetail.sauvegarde_volontaire.is_(True))
-            .count()
-        )
-        if nb_sauvegardees >= MAX_VOLUNTARY_TRIPS:
-            raise HTTPException(
-                status_code=409,
-                detail="20 tournées sont déjà sauvegardées. Supprimez-en une avant d’en sauvegarder une nouvelle.",
-            )
+    if not detail.tournee_uid:
+        detail.tournee_uid = str(uuid.uuid4())
     detail.nom_tournee = payload.nom_tournee
     detail.sauvegarde_volontaire = True
     db.commit()
@@ -563,7 +600,7 @@ def supprimer_tournee_sauvegardee(itineraire_id: int, db: Session = Depends(get_
 
 @router.get("/")
 def liste_itineraires(db: Session = Depends(get_db)):
-    itineraires = db.query(Itineraire).order_by(Itineraire.id.desc()).limit(MAX_VOLUNTARY_TRIPS + MAX_AUTO_TRIPS).all()
+    itineraires = db.query(Itineraire).order_by(Itineraire.id.desc()).all()
     return [_serialize_trip(itineraire, db) for itineraire in itineraires]
 
 

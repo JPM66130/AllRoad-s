@@ -180,6 +180,18 @@ _ajouter_colonnes_sqlite("restrictions", {
     "niveau": "VARCHAR NOT NULL DEFAULT 'info'",
     "actif": "BOOLEAN NOT NULL DEFAULT 1",
 })
+_ajouter_colonnes_sqlite("trajet_details", {
+    "statut_diffusion": "VARCHAR NOT NULL DEFAULT 'personnelle'",
+    "client_id": "VARCHAR",
+    "depot_id": "VARCHAR",
+    "validee_par": "VARCHAR",
+    "note_exploitation": "TEXT",
+    "tournee_uid": "VARCHAR",
+    "version_numero": "INTEGER NOT NULL DEFAULT 1",
+    "version_parent_id": "INTEGER",
+    "est_version_active": "BOOLEAN NOT NULL DEFAULT 1",
+})
+
 _ajouter_colonnes_sqlite("alertes", {
     "profils_csv": "VARCHAR NOT NULL DEFAULT 'tous'",
     "niveau": "VARCHAR NOT NULL DEFAULT 'info'",
